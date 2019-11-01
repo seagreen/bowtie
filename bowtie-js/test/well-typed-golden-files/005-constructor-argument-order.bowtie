@@ -24,10 +24,10 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const BoolInt = arg1 => arg2 => ["BoolInt", arg1, arg2];
-const False = ["False"];
-const True = ["True"];
-const result = BoolInt(True)(0);
+const _BoolInt = _arg1 => _arg2 => ["BoolInt", _arg1, _arg2];
+const _False = ["False"];
+const _True = ["True"];
+const _result = _BoolInt(_True)(0);
 
-console.log(result);
+console.log(_result);
 */

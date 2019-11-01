@@ -6,6 +6,7 @@ module Bowtie.JS.Serialize
   ) where
 
 import Bowtie.JS.AST
+import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 import qualified Data.Text as Text
@@ -23,10 +24,10 @@ serialize :: AST -> Text -- TODO: text builder
 serialize topAst =
   case topAst of
     Var id ->
-      id
+      serializeId id
 
     Lam id ast ->
-      id <> " => " <> serialize ast
+      serializeId id <> " => " <> serialize ast
 
     App a1 a2 ->
       serialize a1 <> "(" <> serialize a2 <> ")"
@@ -54,13 +55,14 @@ serialize topAst =
 
     Case ast alts ->
       let
-        mkAssign :: (Natural, Text) -> Text
-        mkAssign (n, t) =
-          "const " <> t <> " = $1[" <> show n <> "];\n"
+        mkAssign :: (Natural, Id) -> Text
+        mkAssign (n, id) =
+          "const " <> serializeId id <> " = $1[" <> show n <> "];\n"
 
         f :: Alt -> Text
         f (Alt id bindings expr) =
-          "if ($1[0] === \"" <> id <> "\") {"
+           -- unId not serializeId because it's ["Unit"] not [Unit].
+          "if ($1[0] === \"" <> unId id <> "\") {"
             <> foldMap mkAssign (zip [1..] bindings)
             <> "return " <> serialize expr <> "} else "
       in
@@ -98,3 +100,7 @@ serializeOperation op =
 
     Panic expr -> -- Only works on Text
       experize ("throw " <> serialize expr)
+
+serializeId :: Id -> Text
+serializeId (Id t) =
+  "_" <> t

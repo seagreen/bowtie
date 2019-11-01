@@ -24,10 +24,10 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const Unit = ["Unit"];
-const identity = a => a;
-const result = (() => { const $1 = identity(Unit);
-if ($1[0] === "Unit") {return identity(0)} else  {throw "no match";} })();
+const _Unit = ["Unit"];
+const _identity = _a => _a;
+const _result = (() => { const $1 = _identity(_Unit);
+if ($1[0] === "Unit") {return _identity(0)} else  {throw "no match";} })();
 
-console.log(result);
+console.log(_result);
 */

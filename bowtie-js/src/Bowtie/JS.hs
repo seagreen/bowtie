@@ -65,7 +65,7 @@ transpileAndExecute src = do
 
 appendConsoleLog :: Text -> Text
 appendConsoleLog js =
-  js <> "\n\nconsole.log(result);"
+  js <> "\n\nconsole.log(_result);"
 
 -- * Below should be in a lib somewhere
 

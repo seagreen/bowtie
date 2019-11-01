@@ -24,10 +24,10 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const IdentityInt = arg1 => ["IdentityInt", arg1];
-const result = (() => { const $1 = IdentityInt(1);
-if ($1[0] === "IdentityInt") {const n = $1[1];
-return n} else  {throw "no match";} })();
+const _IdentityInt = _arg1 => ["IdentityInt", _arg1];
+const _result = (() => { const $1 = _IdentityInt(1);
+if ($1[0] === "IdentityInt") {const _n = $1[1];
+return _n} else  {throw "no match";} })();
 
-console.log(result);
+console.log(_result);
 */

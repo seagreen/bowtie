@@ -56,8 +56,8 @@ testApps =
 exerciseLunarLander :: Text
 exerciseLunarLander =
   [s|
-const resYYY1 = result[2](["Tick"])
-const resYYY2 = resYYY1[2](["KeyDown", 119]) // TODO: this and the one below can be changed without failing the test
-const resYYY3 = resYYY2[2](["KeyUp", 119])
-console.log(resYYY3);
+const $res1 = _result[2](["Tick"])
+const $res2 = $res1[2](["KeyDown", 119]) // TODO: this and the one below can be changed without failing the test
+const $res3 = $res2[2](["KeyUp", 119])
+console.log($res3);
 |]

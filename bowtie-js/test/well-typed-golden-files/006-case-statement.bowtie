@@ -24,10 +24,10 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const False = ["False"];
-const True = ["True"];
-const result = (() => { const $1 = True;
+const _False = ["False"];
+const _True = ["True"];
+const _result = (() => { const $1 = _True;
 if ($1[0] === "False") {return 0} else if ($1[0] === "True") {return 1} else  {throw "no match";} })();
 
-console.log(result);
+console.log(_result);
 */

@@ -24,12 +24,12 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const False = ["False"];
-const Just = arg1 => ["Just", arg1];
-const Nothing = ["Nothing"];
-const True = ["True"];
-const foo = Just(True);
-const result = Just(0);
+const _False = ["False"];
+const _Just = _arg1 => ["Just", _arg1];
+const _Nothing = ["Nothing"];
+const _True = ["True"];
+const _foo = _Just(_True);
+const _result = _Just(0);
 
-console.log(result);
+console.log(_result);
 */

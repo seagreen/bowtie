@@ -24,8 +24,8 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const a = 0;
-const result = a;
+const _a = 0;
+const _result = _a;
 
-console.log(result);
+console.log(_result);
 */

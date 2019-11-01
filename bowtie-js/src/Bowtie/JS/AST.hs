@@ -1,11 +1,12 @@
 module Bowtie.JS.AST where
 
+import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 -- h/t PureScript
 data AST
-  = Var Text
-  | Lam Text AST
+  = Var Id
+  | Lam Id AST
   | App AST AST
 
   | Assignment AST AST
@@ -21,7 +22,7 @@ data AST
   deriving (Eq, Show)
 
 data Alt
-  = Alt Text [Text] AST
+  = Alt Id [Id] AST
   deriving (Eq, Show)
 
 data Operation

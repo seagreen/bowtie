@@ -1,6 +1,6 @@
 "use strict";
 
-let topLevelResult = result;
+let topLevelResult = _result;
 
 function main() {
   const canvas = document.getElementById("canvas");

@@ -1,4 +1,4 @@
-[Function: result]
+[Function: _result]
 
 
 /*
@@ -24,7 +24,7 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const result = n => n(0);
+const _result = _n => _n(0);
 
-console.log(result);
+console.log(_result);
 */
