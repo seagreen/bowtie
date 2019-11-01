@@ -1,0 +1,14 @@
+type Bit = Ya | Na -- todo: can replace with bool?
+
+type BoolInt = BoolInt Bit Int
+
+type Unit = Unit
+
+foo : Bit -> Int -> Unit
+foo =
+  \b. \n. Unit
+
+result : Int
+result =
+  case BoolInt Ya 1 of
+    BoolInt b n -> foo b n

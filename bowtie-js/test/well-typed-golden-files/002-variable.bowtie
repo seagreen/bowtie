@@ -1,0 +1,31 @@
+0
+
+
+/*
+'use strict';
+
+function arrayToListYYY(xs) {
+  const reducer = (accumulator, currentValue) => ["Cons", currentValue, accumulator];
+  return xs.reduceRight(reducer, ["Nil"]);
+}
+
+function unicodeListize(t) {
+  let xs = t.split('').map(c => c.codePointAt())
+  return ["Unicode", arrayToListYYY(xs)];
+}
+
+function compareYYY(a, b) {
+  if (a > b) {
+    return ["GreaterThan"];
+  } else if (b > a) {
+    return ["LessThan"];
+  } else {
+    return ["Equal"];
+  }
+}
+
+const a = 0;
+const result = a;
+
+console.log(result);
+*/

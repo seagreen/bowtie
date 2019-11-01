@@ -1,0 +1,11 @@
+type List a = Cons a (List a) | Nil
+
+type Unit = Unit
+
+result : Int
+result =
+  case Cons 1 Nil of
+    Cons n rest -> n
+    Nil -> case Cons Unit Nil of
+             Cons u rest -> 2
+             Nil -> 3

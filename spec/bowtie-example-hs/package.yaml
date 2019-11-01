@@ -1,0 +1,36 @@
+name: bowtie-example
+default-extensions:
+
+  # Notable
+
+  - StrictData
+
+  # Other
+
+  - BlockArguments
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DerivingStrategies
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - MultiParamTypeClasses
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - RankNTypes
+  - ScopedTypeVariables
+
+ghc-options: -Wall
+dependencies:
+  - base
+  - bytestring
+  - file-embed
+  - text
+
+library:
+  source-dirs: src

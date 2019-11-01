@@ -1,0 +1,12 @@
+type IdentityInt = IdentityInt Int
+
+type Bool = True | False
+
+identityBool : Bool -> Bool
+identityBool =
+  \b. b
+
+result : Bool
+result =
+  case IdentityInt 1 of
+    IdentityInt n -> identityBool n

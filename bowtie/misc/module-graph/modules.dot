@@ -1,0 +1,80 @@
+// style=invis edges aren't actual dependencies,
+// but are just for making the graph appear how we want.
+
+// We also use rank=right to order modules within clusters
+// (e.g we want Parse to appear to the right of Infer.
+
+digraph {
+
+  // subgraph names need to be prefixed by cluster_
+  subgraph cluster_bowtie {
+    label="Bowtie"
+
+    subgraph cluster_untyped {
+      label="Untyped"
+      color=red
+
+      // NOTE: Order matters for rank.
+      // It needs to come before the node it refers to is used.
+      { rank=right; "Untyped.Erase" }
+      { rank=left; "Untyped.Eval" }
+
+      "Untyped.Eval" -> "Untyped.Expr"
+      "Untyped.Erase" -> "Untyped.Expr"
+    }
+
+    subgraph cluster_core {
+      label="Core"
+      color=indigo
+
+      "Core.Typecheck" -> "Core.Expr"
+      "Untyped.Erase" -> "Core.Expr"
+
+      "Untyped.Expr" -> "Core.Expr" [style=invis]
+      "Untyped.Erase" -> "Core.Typecheck" [style=invis]
+    }
+
+    subgraph cluster_type {
+      label="Type"
+      color=blue
+
+      { rank=right; "Type.Parse" }
+
+      "Type.Kindcheck" -> "Type.AST"
+      "Type.Parse" -> "Type.AST"
+    }
+
+    subgraph cluster_syntax {
+      label="Surface"
+      color=green3
+
+      { rank=right; "Surface.Parse" }
+
+      "Surface.AST" -> "Type.AST"
+      "Surface.Infer" -> "Surface.AST"
+      "Surface.Infer" -> "Type.Kindcheck"
+      "Surface.Desugar" -> "Surface.AST"
+      "Surface.Desugar" -> "Core.Expr"
+      "Surface.Parse" -> "Surface.AST"
+      "Surface.Parse" -> "Type.Parse"
+
+      "Surface.AST" -> "Core.Expr" [style=invis]
+    }
+
+    "Interpret" -> "Surface.Parse" [constraint=false]
+    "Interpret" -> "Surface.Infer"
+    // minlen because otherwise Interpret is claustrophobically low:
+    "Interpret" -> "Surface.Desugar" [minlen=2]
+    "Interpret" -> "Untyped.Erase" [constraint=false]
+    "Interpret" -> "Untyped.Eval" [constraint=false]
+
+    // Without this the order goes Core, Untyped, Surface
+    // (We want Untyped, Core, Surface).
+    "Interpret" -> "Core.Typecheck" [style=invis]
+  }
+
+  subgraph cluster_executable {
+    label="executable"
+    "Main" -> "Interpret"
+  }
+}

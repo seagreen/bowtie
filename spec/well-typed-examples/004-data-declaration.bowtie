@@ -1,0 +1,5 @@
+type Unit = Unit
+
+result : Unit
+result =
+  Unit

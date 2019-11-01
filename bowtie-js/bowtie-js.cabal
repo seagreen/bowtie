@@ -1,0 +1,97 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 4e2b4f6279dc538e7662ea368bcc51bc76301eb9c70fff9339d028611eb5dc62
+
+name:           bowtie-js
+version:        0.0.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      Bowtie.JS
+      Bowtie.JS.AST
+      Bowtie.JS.Imperativize
+      Bowtie.JS.Serialize
+      Bowtie.JS.Transpile
+  other-modules:
+      Paths_bowtie_js
+  hs-source-dirs:
+      src
+  default-extensions: StrictData BlockArguments DeriveAnyClass DeriveDataTypeable DeriveFunctor DeriveGeneric DerivingStrategies ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GeneralizedNewtypeDeriving InstanceSigs MultiParamTypeClasses NoImplicitPrelude OverloadedStrings RankNTypes ScopedTypeVariables
+  ghc-options: -Wall
+  build-depends:
+      base
+    , bowtie
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , mtl
+    , string-qq
+    , text
+    , transformers
+    , typed-process
+    , unordered-containers
+    , writer-cps-mtl
+    , writer-cps-transformers
+  default-language: Haskell2010
+
+executable bowtie-js
+  main-is: Main.hs
+  other-modules:
+      Paths_bowtie_js
+  hs-source-dirs:
+      ./.
+  default-extensions: StrictData BlockArguments DeriveAnyClass DeriveDataTypeable DeriveFunctor DeriveGeneric DerivingStrategies ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GeneralizedNewtypeDeriving InstanceSigs MultiParamTypeClasses NoImplicitPrelude OverloadedStrings RankNTypes ScopedTypeVariables
+  ghc-options: -Wall -threaded -rtsopts
+  build-depends:
+      base
+    , bowtie
+    , bowtie-js
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , mtl
+    , optparse-applicative
+    , string-qq
+    , text
+    , transformers
+    , typed-process
+    , unordered-containers
+    , writer-cps-mtl
+    , writer-cps-transformers
+  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  other-modules:
+      Paths_bowtie_js
+  hs-source-dirs:
+      test
+  default-extensions: StrictData BlockArguments DeriveAnyClass DeriveDataTypeable DeriveFunctor DeriveGeneric DerivingStrategies ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GeneralizedNewtypeDeriving InstanceSigs MultiParamTypeClasses NoImplicitPrelude OverloadedStrings RankNTypes ScopedTypeVariables
+  ghc-options: -Wall
+  build-depends:
+      base
+    , bowtie
+    , bowtie-example
+    , bowtie-js
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , hspec
+    , mtl
+    , string-qq
+    , text
+    , transformers
+    , typed-process
+    , unordered-containers
+    , writer-cps-mtl
+    , writer-cps-transformers
+  default-language: Haskell2010

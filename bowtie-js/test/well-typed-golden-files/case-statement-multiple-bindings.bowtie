@@ -1,0 +1,38 @@
+[ 'Unit' ]
+
+
+/*
+'use strict';
+
+function arrayToListYYY(xs) {
+  const reducer = (accumulator, currentValue) => ["Cons", currentValue, accumulator];
+  return xs.reduceRight(reducer, ["Nil"]);
+}
+
+function unicodeListize(t) {
+  let xs = t.split('').map(c => c.codePointAt())
+  return ["Unicode", arrayToListYYY(xs)];
+}
+
+function compareYYY(a, b) {
+  if (a > b) {
+    return ["GreaterThan"];
+  } else if (b > a) {
+    return ["LessThan"];
+  } else {
+    return ["Equal"];
+  }
+}
+
+const BoolInt = arg1 => arg2 => ["BoolInt", arg1, arg2];
+const Na = ["Na"];
+const Unit = ["Unit"];
+const Ya = ["Ya"];
+const foo = b => n => Unit;
+const result = (() => { const $1 = BoolInt(Ya)(1);
+if ($1[0] === "BoolInt") {const b = $1[1];
+const n = $1[2];
+return foo(b)(n)} else  {throw "no match";} })();
+
+console.log(result);
+*/

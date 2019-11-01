@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+# Dependencies:
+#
+# + run-dot already working (so you have GraphViz)
+#
+# + eog
+#     - set to auto-reload on change
+#         (top left button > Preferences > Plugins > Reload image)
+#     - also turn off the sidebar
+#
+# + cargo install watchexec
+
+eog './bowtie/misc/generated/modules.svg' &
+watchexec './bowtie/misc/module-graph/run-dot' --watch ./bowtie/misc/module-graph --filter '*.dot'

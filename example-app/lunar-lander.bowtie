@@ -1,0 +1,276 @@
+type Model = Model Int Int Int Bool Status -- y, velocity, fuel, thrusting, status
+
+type Status = Flying | Landed | Destroyed
+
+getY : Model -> Int
+getY =
+  \m. case m of
+        Model y a b c d -> y
+
+updateY : Model -> Int -> Model
+updateY =
+  \m. \n. case m of
+            Model y a b c d -> Model (plus y n) a b c d
+
+getVelocity : Model -> Int
+getVelocity =
+  \m. case m of
+        Model a velocity b c d -> velocity
+
+updateVelocity : Model -> Int -> Model
+updateVelocity =
+  \m. \n. case m of
+            Model a velocity b c d -> Model a (plus velocity n) b c d
+
+getFuel : Model -> Int
+getFuel =
+  \m. case m of
+        Model a b fuel c d -> fuel
+
+updateFuel : Model -> Int -> Model
+updateFuel =
+  \m. \n. case m of
+            Model a b fuel c d -> Model a b (plus n fuel) c d
+
+getThrust : Model -> Bool
+getThrust =
+  \m. case m of
+        Model a b c isThrustOn d -> isThrustOn
+
+setThrust : Model -> Bool -> Model
+setThrust =
+  \m. \thrust. case m of
+                 Model a b c oldThrust d -> Model a b c thrust d
+
+getStatus : Model -> Status
+getStatus =
+  \m. case m of
+        Model a b c d status -> status
+
+updateStatus : Model -> Status -> Model
+updateStatus =
+  \m. \status. case m of
+                 Model a b c d oldStatus -> Model a b c d status
+
+result : Machine
+result =
+  Step (view initialState) (\input : Input. step input initialState)
+
+step : Input -> Model -> Machine
+step =
+  \input.
+    \m.
+      let
+        newState : Model
+        newState =
+          update input m
+      in
+        Step (view newState) (\input : Input. step input newState)
+
+initialState : Model
+initialState =
+  Model 0 0 100 False Flying
+
+wCodepoint : Int
+wCodepoint =
+  119
+
+-- case equal c wCodepoint of
+
+update : Input -> Model -> Model
+update =
+  \input.
+    \m.
+      case getStatus m of
+        Flying ->
+          case input of
+            Tick ->
+              let
+                modelB : Model
+                modelB =
+                  case getThrust m of
+                    True ->
+                      case compare (getFuel m) 0 of
+                        LessThan ->
+                          updateVelocity (setThrust m False) -1
+
+                        Equal ->
+                          updateVelocity (setThrust m False) -1
+
+                        GreaterThan ->
+                          updateFuel (updateVelocity m 1) -1
+
+                    False ->
+                      updateVelocity m -1
+
+              in
+                bumpStatus (bumpPosition modelB)
+
+            KeyUp c ->
+              setThrust m False
+
+            KeyDown c ->
+              setThrust m True
+
+        Landed ->
+          m
+
+        Destroyed ->
+          m
+
+bumpPosition : Model -> Model
+bumpPosition =
+  \m. updateY m (negate (getVelocity m))
+
+bumpStatus : Model -> Model
+bumpStatus =
+  \m.
+    case compare (getY m) (plus 800 -15) of
+      LessThan ->
+        m
+
+      Equal ->
+        m
+
+      GreaterThan ->
+        let
+          modelB : Model
+          modelB =
+            case compare (getVelocity m) -10 of
+              LessThan ->
+                updateStatus m Destroyed
+
+              Equal ->
+                updateStatus m Landed
+
+              GreaterThan ->
+                updateStatus m Landed
+        in
+          setThrust modelB False
+
+view : Model -> Picture
+view =
+  \m.
+    Pictures
+      (Cons
+        (fuelGuage (getFuel m))
+        (Cons
+          (Translate 800 (getY m) (showLem m))
+          (Cons surface Nil)))
+
+showLem : Model -> Picture
+showLem =
+  \m.
+    case getStatus m of
+      Flying ->
+        lem (getThrust m)
+
+      Landed ->
+        lem (getThrust m)
+
+      Destroyed ->
+        crashSite
+
+lem : Bool -> Picture
+lem =
+  \isThrusting.
+    let
+      thrust : Picture
+      thrust =
+        case isThrusting of
+          False ->
+            emptyPicture
+
+          True ->
+            viewThrust
+    in
+      Pictures (Cons (Translate 0 15 thrust) (Cons lemLegs (Cons lemBody Nil)))
+
+viewThrust : Picture
+viewThrust =
+  let
+    topLeft : Picture
+    topLeft =
+      line -5 0 0 -5
+
+    topRight : Picture
+    topRight =
+      line 0 -5 5 0
+
+    bottomLeft : Picture
+    bottomLeft =
+      line -5 0 0 8
+
+    bottomRight : Picture
+    bottomRight =
+      line 0 8 5 0
+  in
+    Pictures (Cons topLeft (Cons topRight (Cons bottomLeft (Cons bottomRight Nil))))
+
+lemBody : Picture
+lemBody =
+  let
+    topBar : Picture
+    topBar =
+      line -5 -5 5 -5
+
+    bottomBar : Picture
+    bottomBar =
+      line -5 5 5 5
+
+    leftBar : Picture
+    leftBar =
+      line -5 -5 -5 5
+
+    rightBar : Picture
+    rightBar =
+      line 5 -5 5 5
+
+    centerBar : Picture
+    centerBar =
+      line -5 0 5 0
+  in
+    Pictures (Cons topBar (Cons bottomBar (Cons leftBar (Cons rightBar (Cons centerBar Nil)))))
+
+lemLegs : Picture
+lemLegs =
+  let
+    leftLeg : Picture
+    leftLeg =
+      line -5 5 -12 12
+
+    rightLeg : Picture
+    rightLeg =
+      line 5 5 12 12
+  in
+    Pictures (Cons leftLeg (Cons rightLeg Nil))
+
+crashSite : Picture
+crashSite =
+  let
+    a : Picture
+    a =
+      line -10 0 -25 20
+
+    b : Picture
+    b =
+      line -4 5 -10 30
+
+    c : Picture
+    c =
+      line 4 5 10 30
+
+    d : Picture
+    d =
+      line 10 0 25 20
+  in
+    Pictures (Cons a (Cons b (Cons c (Cons d Nil))))
+
+fuelGuage : Int -> Picture
+fuelGuage =
+  \n.
+    Translate 100 100 (Text (textAppend "Fuel: " (showInt n)))
+
+surface : Picture
+surface =
+  line 0 800 displayWidth 800

@@ -1,0 +1,53 @@
+type List a = Cons a (List a) | Nil
+
+listAppend : List a -> List a -> List a
+listAppend =
+  \xs.
+    \ys.
+      case xs of
+        Nil ->
+          ys
+
+        Cons x rest ->
+          Cons x (listAppend rest ys)
+
+head : List a -> Maybe a
+head =
+  \xs.
+    case xs of
+      Cons x rest ->
+        Just x
+
+      Nil ->
+        Nothing
+
+tail : List a -> List a
+tail =
+  \xs.
+    case xs of
+      Cons x rest ->
+        rest
+
+      Nil ->
+        Nil
+
+listMap : (a -> b) -> List a -> List b
+listMap =
+  \f.
+    \xs.
+      case xs of
+        Cons x rest ->
+          Cons (f x) (listMap f rest)
+
+        Nil ->
+          Nil
+
+length : List a -> Int
+length =
+  \xs.
+    case xs of
+      Cons x rest ->
+        plus 1 (length rest)
+
+      Nil ->
+        0

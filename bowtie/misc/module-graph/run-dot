@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# Dependencies:
+#
+# sudo apt install graphviz
+
+dot -Tsvg ./bowtie/misc/module-graph/modules.dot -o ./bowtie/misc/generated/modules.svg
+dot -Tpng ./bowtie/misc/module-graph/modules.dot -o ./bowtie/misc/generated/modules.png

@@ -1,0 +1,7 @@
+type Bool = True | False
+
+type BoolInt = BoolInt Bool Int
+
+result : BoolInt
+result =
+  BoolInt True 0

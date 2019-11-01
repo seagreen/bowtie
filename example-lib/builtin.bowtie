@@ -1,0 +1,27 @@
+type Ordering = LessThan | Equal | GreaterThan
+
+type Text = Unicode (List Int)
+
+compare : a -> a -> Ordering
+compare =
+  builtin "ordering"
+
+plus : Int -> Int -> Int
+plus =
+  builtin "plus"
+
+multiply : Int -> Int -> Int
+multiply =
+  builtin "multiply"
+
+showInt : Int -> Text
+showInt =
+  builtin "showInt"
+
+builtin : Text -> a
+builtin =
+  panic
+
+panic : Text -> a
+panic =
+  panic

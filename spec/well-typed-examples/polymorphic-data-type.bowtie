@@ -1,0 +1,10 @@
+type Maybe a = Just a | Nothing
+
+type Unit = Unit
+
+result : Int
+result =
+  case Just 1 of
+    Just n -> n
+    Nothing -> case Just Unit of
+                 Unit -> 0

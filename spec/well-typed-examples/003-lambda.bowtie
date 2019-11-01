@@ -1,0 +1,3 @@
+result : Int
+result =
+  (\n. n) 0

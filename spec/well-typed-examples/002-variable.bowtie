@@ -1,0 +1,7 @@
+a : Int
+a =
+  0
+
+result : Int
+result =
+  a

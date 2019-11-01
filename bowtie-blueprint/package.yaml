@@ -1,0 +1,72 @@
+name: bowtie-blueprint
+default-extensions:
+
+  # Notable
+
+  - StrictData
+
+  # Other
+
+  - BlockArguments
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DerivingStrategies
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - MultiParamTypeClasses
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - RankNTypes
+  - ScopedTypeVariables
+
+ghc-options: -Wall
+dependencies:
+
+  # Notable
+
+  - bowtie
+  - cmark
+  - megaparsec
+  - parser-combinators
+  - show-prettyprint
+
+  # Other
+
+  - base
+  - bytestring
+  - containers
+  - directory
+  - filepath
+  - mtl
+  - text
+  - transformers
+  - unordered-containers
+  - writer-cps-mtl
+  - writer-cps-transformers
+
+library:
+  source-dirs: src
+
+executables:
+  bowtie-blueprint:
+    source-dirs: .
+    main: Main.hs
+    ghc-options: -threaded -rtsopts
+    dependencies:
+      - bowtie-blueprint
+      - optparse-applicative
+
+tests:
+  spec:
+    source-dirs: test
+    main: Test.hs
+    dependencies:
+      - bowtie-blueprint
+      - hspec
+      - QuickCheck

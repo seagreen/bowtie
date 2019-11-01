@@ -1,0 +1,6 @@
+no-equals.bowtie:2:7:
+  |
+2 | result
+  |       ^
+unexpected newline
+expecting '=' or followup identifier char

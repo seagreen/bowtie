@@ -1,0 +1,6 @@
+type IdentityInt = IdentityInt Int
+
+result : Int
+result =
+  case IdentityInt 1 of
+    IdentityInt n -> n

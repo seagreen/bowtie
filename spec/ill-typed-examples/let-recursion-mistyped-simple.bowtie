@@ -1,0 +1,9 @@
+type Bool = True | False
+
+foo : Bool -> Int
+foo =
+  \b. foo 1
+
+result : Int
+result =
+  foo False

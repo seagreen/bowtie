@@ -1,0 +1,65 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 18f26961d717f8c4be039baf8291f2783c635c494840786ce5cd1b321518b5ae
+
+name:           bowtie-visualize
+version:        0.0.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      Bowtie.Visualize
+      Bowtie.Visualize.GraphConstraints
+  other-modules:
+      Paths_bowtie_visualize
+  hs-source-dirs:
+      src
+  default-extensions: StrictData BlockArguments DeriveAnyClass DeriveDataTypeable DeriveFunctor DeriveGeneric DerivingStrategies ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GeneralizedNewtypeDeriving InstanceSigs MultiParamTypeClasses NoImplicitPrelude OverloadedStrings RankNTypes ScopedTypeVariables
+  ghc-options: -Wall
+  build-depends:
+      base
+    , bowtie
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , graphviz
+    , mtl
+    , text
+    , transformers
+    , typed-process
+    , unordered-containers
+    , writer-cps-mtl
+    , writer-cps-transformers
+  default-language: Haskell2010
+
+executable bowtie-visualize
+  main-is: Main.hs
+  other-modules:
+      Paths_bowtie_visualize
+  hs-source-dirs:
+      ./.
+  default-extensions: StrictData BlockArguments DeriveAnyClass DeriveDataTypeable DeriveFunctor DeriveGeneric DerivingStrategies ExistentialQuantification FlexibleContexts FlexibleInstances FunctionalDependencies GeneralizedNewtypeDeriving InstanceSigs MultiParamTypeClasses NoImplicitPrelude OverloadedStrings RankNTypes ScopedTypeVariables
+  ghc-options: -Wall -threaded -rtsopts
+  build-depends:
+      base
+    , bowtie
+    , bowtie-visualize
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , graphviz
+    , mtl
+    , optparse-applicative
+    , text
+    , transformers
+    , typed-process
+    , unordered-containers
+    , writer-cps-mtl
+    , writer-cps-transformers
+  default-language: Haskell2010

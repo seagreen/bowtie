@@ -1,0 +1,10 @@
+identity : a -> a
+identity =
+  \a. a
+
+type Unit = Unit
+
+result : Int
+result =
+  case identity Unit of
+    Unit -> identity 0

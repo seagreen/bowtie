@@ -1,0 +1,42 @@
+equal : a -> a -> Bool
+equal =
+  \a.
+    \b.
+      case compare a b of
+        LessThan ->
+          False
+
+        Equal ->
+          True
+
+        GreaterThan ->
+          False
+
+textAppend : Text -> Text -> Text
+textAppend =
+  \t1.
+    \t2.
+      case t1 of
+        Unicode a ->
+          case t2 of
+            Unicode b -> Unicode (listAppend a b)
+
+identity : a -> a
+identity =
+  \a. a
+
+type Unit = Unit
+
+type Bool = True | False
+
+type Maybe a = Just a | Nothing
+
+type Either e a = Right a | Left e
+
+type Pair a b = Pair a b
+
+type Nat = Natural Int
+
+negate : Int -> Int
+negate =
+  \n. multiply n -1

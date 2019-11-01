@@ -1,0 +1,47 @@
+type Picture = Line Point Point | Text Text | Translate Int Int Picture | Pictures (List Picture)
+
+emptyPicture : Picture
+emptyPicture =
+  Pictures Nil
+
+line : Int -> Int -> Int -> Int -> Picture
+line =
+  \xa. \ya. \xb. \yb. Line (Point xa ya) (Point xb yb)
+
+multPoint : Point -> Int -> Point
+multPoint =
+  \p.
+    \n.
+      case p of
+        Point x y -> Point (multiply x n) (multiply y n)
+
+scale : Int -> Picture -> Picture
+scale =
+  \n.
+    \pic.
+      case pic of
+        Line p1 p2 ->
+          Line (multPoint p1 n) (multPoint p2 n)
+
+        Text t ->
+          pic
+
+        Translate x y p ->
+          pic
+
+        Pictures pics ->
+          Pictures (listMap (scale n) pics)
+
+type Point = Point Int Int
+
+type Input = Tick | KeyDown Int | KeyUp Int
+
+type Machine = Step Picture (Input -> Machine) | Done
+
+displayWidth : Int
+displayWidth =
+  1600
+
+displayHeight : Int
+displayHeight =
+  1000

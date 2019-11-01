@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+# Generate badges showing how many lines of code are in different
+# parts of the project.
+
+# Dependencies:
+#
+# sudo npm install -g gh-badges
+# sudo apt install jq
+
+############################################################
+# bowtie
+############################################################
+
+SLOC1=$(cloc --json ./bowtie/src ./bowtie/Main.hs | jq '.Haskell.code')
+badge sloc "$SLOC1" :blue .svg > ./bowtie/misc/generated/sloc-bowtie.svg
+#     |    |
+#     |    The value (second part) of the badge.
+#     |
+#     The title (first part) of the badge.
+
+############################################################
+# bowtie-js
+############################################################
+
+SLOC1=$(cloc --json ./bowtie-js/src ./bowtie-js/Main.hs | jq '.Haskell.code')
+badge sloc "$SLOC1" :blue .svg > ./bowtie/misc/generated/sloc-bowtie-js.svg
+
+############################################################
+# bowtie-blueprint
+############################################################
+
+SLOC1=$(cloc --json ./bowtie-blueprint/src ./bowtie-blueprint/Main.hs | jq '.Haskell.code')
+badge sloc "$SLOC1" :blue .svg > ./bowtie/misc/generated/sloc-bowtie-blueprint.svg
+
+############################################################
+# bowtie-visualize
+############################################################
+
+SLOC1=$(cloc --json ./bowtie-visualize/src ./bowtie-visualize/Main.hs | jq '.Haskell.code')
+badge sloc "$SLOC1" :blue .svg > ./bowtie/misc/generated/sloc-bowtie-visualize.svg

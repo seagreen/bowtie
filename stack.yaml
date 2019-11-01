@@ -1,0 +1,17 @@
+resolver: lts-13.29
+
+local-bin-path: bin
+
+packages:
+  - bowtie
+  - bowtie-blueprint
+  - bowtie-js
+  - bowtie-visualize
+  - spec/bowtie-example-hs
+
+extra-deps:
+  - cmark-0.5.6.3 # get the latest
+  - graphviz-2999.20.0.3 # note on Stackage
+  - megaparsec-7.0.5 # important enough to lock down
+  - writer-cps-mtl-0.1.1.6 # not on Stackage
+  - writer-cps-transformers-0.5.6.1 # not on Stackage

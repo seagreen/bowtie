@@ -1,0 +1,14 @@
+type Bool = True | False
+
+type Unit = Unit
+
+result : Int
+result =
+  -- Actually a test of indentation sensative parsing.
+  --
+  -- Without it the first case has only one match (True)
+  -- and the second case has two matches (Unit and False).
+  case False of
+    True -> case Unit of
+              Unit -> 1
+    False -> 0

@@ -1,0 +1,71 @@
+name: bowtie-js
+default-extensions:
+
+  # Notable
+
+  - StrictData
+
+  # Other
+
+  - BlockArguments
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DerivingStrategies
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - MultiParamTypeClasses
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - RankNTypes
+  - ScopedTypeVariables
+
+ghc-options: -Wall
+dependencies:
+
+  # Notable
+
+  - bowtie
+  - string-qq
+  - typed-process
+
+  # Other
+
+  - base
+  - bytestring
+  - containers
+  - directory
+  - filepath
+  - mtl
+  - text
+  - transformers
+  - unordered-containers
+  - writer-cps-mtl
+  - writer-cps-transformers
+
+library:
+  source-dirs: src
+
+executables:
+  bowtie-js:
+    source-dirs: .
+    main: Main.hs
+    ghc-options: -threaded -rtsopts
+    dependencies:
+      - bowtie-js
+      - optparse-applicative
+
+tests:
+  spec:
+    source-dirs: test
+    main: Test.hs
+    dependencies:
+      - bowtie
+      - bowtie-example
+      - bowtie-js
+      - hspec

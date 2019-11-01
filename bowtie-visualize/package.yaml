@@ -1,0 +1,61 @@
+name: bowtie-visualize
+default-extensions:
+
+  # Notable
+
+  - StrictData
+
+  # Other
+
+  - BlockArguments
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DerivingStrategies
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - MultiParamTypeClasses
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - RankNTypes
+  - ScopedTypeVariables
+
+ghc-options: -Wall
+dependencies:
+
+  # Notable
+
+  - bowtie
+  - graphviz
+  - typed-process
+
+  # Other
+
+  - base
+  - bytestring
+  - containers
+  - directory
+  - filepath
+  - mtl
+  - text
+  - transformers
+  - unordered-containers
+  - writer-cps-mtl
+  - writer-cps-transformers
+
+library:
+  source-dirs: src
+
+executables:
+  bowtie-visualize:
+    source-dirs: .
+    main: Main.hs
+    ghc-options: -threaded -rtsopts
+    dependencies:
+      - bowtie-visualize
+      - optparse-applicative

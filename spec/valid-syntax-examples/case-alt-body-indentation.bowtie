@@ -1,0 +1,39 @@
+type Unit = Unit
+
+type Bool = True | False
+
+a : Int
+a =
+  case True of
+    True -> 1
+
+    False -> 0
+
+b : Int
+b =
+  case True of
+    True ->
+      1
+
+    False ->
+      0
+
+c : Int
+c =
+  case True of
+    True ->
+      1
+
+    False -> 0
+
+d : Int
+d =
+  case True of
+    True -> 1
+
+    False ->
+      0
+
+result : Int
+result =
+  0

@@ -1,0 +1,33 @@
+0
+
+
+/*
+'use strict';
+
+function arrayToListYYY(xs) {
+  const reducer = (accumulator, currentValue) => ["Cons", currentValue, accumulator];
+  return xs.reduceRight(reducer, ["Nil"]);
+}
+
+function unicodeListize(t) {
+  let xs = t.split('').map(c => c.codePointAt())
+  return ["Unicode", arrayToListYYY(xs)];
+}
+
+function compareYYY(a, b) {
+  if (a > b) {
+    return ["GreaterThan"];
+  } else if (b > a) {
+    return ["LessThan"];
+  } else {
+    return ["Equal"];
+  }
+}
+
+const Unit = ["Unit"];
+const identity = a => a;
+const result = (() => { const $1 = identity(Unit);
+if ($1[0] === "Unit") {return identity(0)} else  {throw "no match";} })();
+
+console.log(result);
+*/

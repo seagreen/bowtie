@@ -1,0 +1,7 @@
+type Bool = True | False
+
+result : Int
+result =
+  case True of
+    False -> 0
+    True -> 1

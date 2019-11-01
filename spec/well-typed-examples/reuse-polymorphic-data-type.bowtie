@@ -1,0 +1,11 @@
+type Maybe a = Just a | Nothing
+
+type Bool = True | False
+
+foo : Maybe Bool
+foo =
+  Just True
+
+result : Maybe Int
+result =
+  Just 0
