@@ -70,15 +70,6 @@ prettyError err =
     TypeError e ->
       "Type error: " <> show e
 
-interpretProgramIO :: [(FilePath, Text)] -> (FilePath, Text) -> IO Untyped.Expr
-interpretProgramIO libFiles appFile =
-  case interpretProgram libFiles appFile of
-    Left e -> do
-      exitWithError (prettyError e)
-
-    Right a ->
-      pure a
-
 -- | NOTE: Environment is just the data types.
 sourceToCore :: Text -> Either IError (Environment, Core.Expr)
 sourceToCore src = do

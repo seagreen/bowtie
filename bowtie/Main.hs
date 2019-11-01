@@ -11,8 +11,12 @@ main = do
   Config name <- args
   appSource <- TIO.readFile name
   libFiles <- Interpret.getLibFiles "example-lib"
-  untypedValue <- Interpret.interpretProgramIO libFiles (name, appSource)
-  TIO.putStrLn (show untypedValue)
+  case Interpret.interpretProgram libFiles (name, appSource) of
+    Left e ->
+      exitWithError (Interpret.prettyError e)
+
+    Right untypedValue ->
+      TIO.putStrLn (show untypedValue)
 
 data Config = Config FilePath
 
