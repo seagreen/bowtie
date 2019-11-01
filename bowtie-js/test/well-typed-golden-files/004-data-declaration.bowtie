@@ -4,17 +4,17 @@
 /*
 'use strict';
 
-function arrayToListYYY(xs) {
+function $arrayToListBuiltin(xs) {
   const reducer = (accumulator, currentValue) => ["Cons", currentValue, accumulator];
   return xs.reduceRight(reducer, ["Nil"]);
 }
 
-function unicodeListize(t) {
+function $unicodeListizeBuiltin(t) {
   let xs = t.split('').map(c => c.codePointAt())
-  return ["Unicode", arrayToListYYY(xs)];
+  return ["Unicode", $arrayToListBuiltin(xs)];
 }
 
-function compareYYY(a, b) {
+function $compareBuiltin(a, b) {
   if (a > b) {
     return ["GreaterThan"];
   } else if (b > a) {
