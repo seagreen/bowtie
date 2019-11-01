@@ -85,7 +85,7 @@ serializeOperation :: Operation -> Text
 serializeOperation op =
   case op of
     Compare ast1 ast2 ->
-      "compareYYY(" <> serialize ast1 <> ", " <> serialize ast2 <> ")"
+      "$compareBuiltin(" <> serialize ast1 <> ", " <> serialize ast2 <> ")"
 
     Plus ast1 ast2 ->
       "(" <> serialize ast1 <> " + " <> serialize ast2 <> ")"
@@ -94,7 +94,7 @@ serializeOperation op =
       "(" <> serialize ast1 <> " * " <> serialize ast2 <> ")"
 
     ShowInt ast ->
-      "unicodeListize(" <> serialize ast <> ".toString())"
+      "$unicodeListizeBuiltin(" <> serialize ast <> ".toString())"
 
     Panic expr -> -- Only works on Text
       experize ("throw " <> serialize expr)

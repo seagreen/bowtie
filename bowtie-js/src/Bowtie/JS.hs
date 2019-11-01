@@ -21,24 +21,21 @@ import qualified Bowtie.Interpret as Interpret
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text as Text
 
-appendConsoleLog :: Text -> Text
-appendConsoleLog js =
-  js <> "\n\nconsole.log(result);"
-
-app1 :: Text
-app1 =
+-- | Internal.
+builtinJsSource :: Text
+builtinJsSource =
   [s|
-function arrayToListYYY(xs) {
+function $arrayToListBuiltin(xs) {
   const reducer = (accumulator, currentValue) => ["Cons", currentValue, accumulator];
   return xs.reduceRight(reducer, ["Nil"]);
 }
 
-function unicodeListize(t) {
+function $unicodeListizeBuiltin(t) {
   let xs = t.split('').map(c => c.codePointAt())
-  return ["Unicode", arrayToListYYY(xs)];
+  return ["Unicode", $arrayToListBuiltin(xs)];
 }
 
-function compareYYY(a, b) {
+function $compareBuiltin(a, b) {
   if (a > b) {
     return ["GreaterThan"];
   } else if (b > a) {
@@ -59,12 +56,16 @@ transpileCore env expr =
   let
     jsAST = makeImp env expr
   in
-    "'use strict';\n\n" <> app1 <> "\n" <> serializeTop jsAST
+    "'use strict';\n\n" <> builtinJsSource <> "\n" <> serializeTop jsAST
 
 transpileAndExecute :: Text -> IO Text
 transpileAndExecute src = do
   let Right js = transpile src
   runTextCommand "node" js
+
+appendConsoleLog :: Text -> Text
+appendConsoleLog js =
+  js <> "\n\nconsole.log(result);"
 
 -- * Below should be in a lib somewhere
 
