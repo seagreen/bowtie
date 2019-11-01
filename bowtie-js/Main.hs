@@ -1,6 +1,6 @@
 module Main where
 
-import Bowtie.JS.Transpile
+import Bowtie.JS
 import Bowtie.Lib.Prelude
 import Options.Applicative
 

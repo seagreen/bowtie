@@ -4,7 +4,6 @@ module Main where
 
 import Bowtie.Interpret
 import Bowtie.JS
-import Bowtie.JS.Transpile
 import Bowtie.Lib.Prelude
 import Data.String.QQ
 import System.FilePath ((</>))

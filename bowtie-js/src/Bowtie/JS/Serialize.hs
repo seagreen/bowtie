@@ -1,4 +1,9 @@
-module Bowtie.JS.Serialize where
+module Bowtie.JS.Serialize
+  ( serializeTop
+  , serialize
+  , serializeOperation
+  , experize
+  ) where
 
 import Bowtie.JS.AST
 import Bowtie.Lib.Prelude

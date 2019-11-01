@@ -1,9 +1,9 @@
 module Bowtie.JS.Imperativize where
 
-import Bowtie.JS (packageUp)
 import Bowtie.JS.AST
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Id
+import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST (Type(..))
@@ -114,3 +114,40 @@ conTypeToFunction (id, TypeScheme _ tsType) =
 
         TypeApp _ _ -> -- eg List a
           []
+
+-- | I initially though packageUp's purpose would be to make sure
+-- it's being passed a full program, which should be a Let,
+-- and it would return Nothing otherwise.
+--
+-- Then I realized that even full programs can be non-Lets,
+-- because if the whole program is:
+--
+-- result : Int -> Int
+-- result =
+--   (\n. n)
+--
+-- then it desugars to
+--
+-- Lambda n (Id n)
+--
+-- with no Let in sight (basically any program that has a single "result"
+-- definition doesn't have to be a Let).
+packageUp :: Core.Expr -> (OrderedMap Id Core.Expr, Core.Expr)
+packageUp expr =
+  case expr of
+    Core.Let bindings body ->
+      case OrderedMap.fromList (HashMap.toList (fmap fst bindings)) of
+        Left _ ->
+          panic "shouldn't happen"
+
+        Right oBindings ->
+          let (more, finalBody) = packageUp body
+          in case OrderedMap.append oBindings more of
+            Left _ ->
+              panic "also shouldn't happen"
+
+            Right res ->
+              (res, finalBody)
+
+    _ ->
+      (OrderedMap.empty, expr)

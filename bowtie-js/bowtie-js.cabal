@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4e2b4f6279dc538e7662ea368bcc51bc76301eb9c70fff9339d028611eb5dc62
+-- hash: f9f6d7cbc6c980fd11462ab3411cc4c18b3a262a837b687a1bb837971abd103e
 
 name:           bowtie-js
 version:        0.0.0
@@ -16,7 +16,6 @@ library
       Bowtie.JS.AST
       Bowtie.JS.Imperativize
       Bowtie.JS.Serialize
-      Bowtie.JS.Transpile
   other-modules:
       Paths_bowtie_js
   hs-source-dirs:
