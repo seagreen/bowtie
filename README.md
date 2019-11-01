@@ -30,9 +30,9 @@ Bowtie programs!
 
 ```sh
 stack install
--- installs bowtie to ./bin/bowtie
+# installs bowtie, bowtie-js, bowtie-blueprint, and bowtie-visualize
 
-./bin/bowtie ./example-app/lunar-lander.bowtie
+bowtie ./example-app/lunar-lander.bowtie
 -- this evaluates lunar-lander and prints the result to the screen.
 -- to get this into a webpage and actually play it see ./bowtie-js
 ```
@@ -45,9 +45,8 @@ JavaScript transpiler (WIP).
 
 ```sh
 stack install
--- installs bowtie-js to ./bin/bowtie-js
 
-./bin/bowtie-js example-app/lunar-lander.bowtie > bowtie-js/main.js
+bowtie-js example-app/lunar-lander.bowtie > bowtie-js/main.js
 
 firefox ./bowtie-js/index.html
 ```

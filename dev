@@ -4,6 +4,8 @@
 #
 # cargo install watchexec
 
+# Assumes you have `local-bin-path: .bin` set in your ~/.stack/config.yaml`.
+
 case $1 in
   "stack")
     stack build --fast --file-watch --test --copy-bins
@@ -27,11 +29,11 @@ case $1 in
     ;;
 
   "lunar")
-    watchexec --restart './bin/bowtie example-app/lunar-lander.bowtie' --watch bin/bowtie --watch example-app --watch example-lib
+    watchexec --restart './.bin/bowtie example-app/lunar-lander.bowtie' --watch .bin/bowtie --watch example-app --watch example-lib
     ;;
 
   "lunar-js")
-    ./bin/bowtie-js example-app/lunar-lander.bowtie > unpretty.js
+    ./.bin/bowtie-js example-app/lunar-lander.bowtie > unpretty.js
     prettier unpretty.js > bowtie-js/main.js
     ;;
 

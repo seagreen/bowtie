@@ -1,7 +1,5 @@
 resolver: lts-13.29
 
-local-bin-path: bin
-
 packages:
   - bowtie
   - bowtie-blueprint
