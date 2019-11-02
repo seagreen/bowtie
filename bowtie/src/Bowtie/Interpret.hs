@@ -6,8 +6,6 @@ import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
 import Bowtie.Type.Kindcheck
 import Bowtie.Type.Parse (ParserErrorBundle)
-import System.Directory (listDirectory)
-import System.FilePath (FilePath, (</>))
 
 import qualified Bowtie.Core.Expr as Core
 import qualified Bowtie.Infer.Elaborate as Infer.Elaborate
@@ -19,7 +17,6 @@ import qualified Bowtie.Untyped.Eval as Untyped.Eval
 import qualified Bowtie.Untyped.Expr as Untyped
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Text as Text
-import qualified Data.Text.IO as TIO
 import qualified Text.Megaparsec as Mega
 
 interpret :: Text -> Either IError Untyped.Expr
@@ -37,7 +34,10 @@ interpret src = do
     Right a ->
       pure a
 
-interpretProgram :: [(FilePath, Text)] -> (FilePath, Text) -> Either IError Untyped.Expr
+interpretProgram
+  :: HashMap FilePath Text
+  -> (FilePath, Text)
+  -> Either IError Untyped.Expr
 interpretProgram libFiles appFile = do
   (_, core) <- sourcesToCore libFiles appFile
   let
@@ -89,18 +89,18 @@ sourceToCore src = do
 
   pure (env, Surface.Desugar.dsg explicitlyTypedExpr)
 
-sourcesToAST :: [(FilePath, Text)] -> (FilePath, Text) -> Either IError AST
+sourcesToAST :: HashMap FilePath Text -> (FilePath, Text) -> Either IError AST
 sourcesToAST libFiles appFile = do
-  libPrograms <- Bifunctor.first ParseError (for libFiles parse)
+  libPrograms <- Bifunctor.first ParseError (for (hashmapToSortedList libFiles) parse)
   appProgram <- Bifunctor.first ParseError (parse appFile)
-  Bifunctor.first NameClash (concatSource (libPrograms <> [appProgram]))
+  Bifunctor.first NameClash (concatSource (libPrograms <> [appProgram])) -- PERFORMANCE
   where
     parse :: (FilePath, Text) -> Either ParserErrorBundle AST
     parse =
       uncurry Surface.Parse.parse
 
 -- | NOTE: Environment is just the data types.
-sourcesToCore :: [(FilePath, Text)] -> (FilePath, Text) -> Either IError (Environment, Core.Expr)
+sourcesToCore :: HashMap FilePath Text -> (FilePath, Text) -> Either IError (Environment, Core.Expr)
 sourcesToCore libFiles appFile = do
   ast <- sourcesToAST libFiles appFile
   let
@@ -116,16 +116,6 @@ sourcesToCore libFiles appFile = do
                                    TypeError
                                    (Infer.Elaborate.elaborate env dsg)
   pure (env, Surface.Desugar.dsg explicitlyTypedExpr)
-
-getLibFiles :: FilePath -> IO [(FilePath, Text)]
-getLibFiles dir = do
-  paths <- (fmap.fmap) (\p -> dir </> p) (listDirectory dir)
-  for paths f
-    where
-      f :: FilePath -> IO (FilePath, Text)
-      f path = do
-        t <- TIO.readFile path
-        pure (path, t)
 
 concatSource :: [AST] -> Either Text AST
 concatSource =

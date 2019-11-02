@@ -12,7 +12,6 @@ import qualified Bowtie.Core.Expr as Core
 import qualified Bowtie.JS.AST as JS
 import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import qualified Data.HashMap.Strict as HashMap
-import qualified Data.List as List
 
 makeImp :: Environment -> Core.Expr -> JS.AST
 makeImp (Environment env) expr =
@@ -20,7 +19,7 @@ makeImp (Environment env) expr =
   where
     conFuncs :: [JS.AST]
     conFuncs =
-      fmap conTypeToFunction (List.sortOn fst (HashMap.toList env))
+      fmap conTypeToFunction (hashmapToSortedList env)
 
     (coreBindings, coreExpr) = packageUp expr
 
@@ -50,7 +49,7 @@ coreToImp topExpr =
           Assignment (Var id) (coreToImp expr)
       in
         Block
-          (  fmap f (List.sortOn fst (HashMap.toList bindings))
+          (  fmap f (hashmapToSortedList bindings)
           <> [coreToImp body] -- PERFORMANCE
           )
 

@@ -4,14 +4,13 @@ import Bowtie.Lib.Prelude
 import Bowtie.Visualize
 import Options.Applicative
 
-import qualified Bowtie.Interpret as Interpret
 import qualified Data.Text.IO as TIO
 
 main :: IO ()
 main = do
   Config name <- args
   appSource <- TIO.readFile name
-  libFiles <- Interpret.getLibFiles "example-lib"
+  libFiles <- readDirectoryFiles "example-lib"
   constraints <- run libFiles (name, appSource)
   writeConstraints constraints
 

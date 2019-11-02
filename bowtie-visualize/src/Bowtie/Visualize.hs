@@ -24,7 +24,7 @@ import qualified Data.ByteString.Lazy as LBS
 import qualified Data.List as List
 import qualified Data.Text as Text
 
-run :: [(FilePath, Text)] -> (FilePath, Text) -> IO [Constraints]
+run :: HashMap FilePath Text -> (FilePath, Text) -> IO [Constraints]
 run libFiles appFile = do
   case Interpret.sourcesToAST libFiles appFile of
     Left e ->

@@ -48,7 +48,7 @@ main = do
     f :: FilePath -> Spec
     f path =
       it path do
-        libFiles <- Interpret.getLibFiles "example-lib" -- TODO: wasted work
+        libFiles <- readDirectoryFiles "example-lib" -- TODO: wasted work
         appSource <- TIO.readFile path
         case Interpret.interpretProgram libFiles (path, appSource) of
           Left e ->

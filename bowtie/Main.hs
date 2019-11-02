@@ -10,7 +10,7 @@ main :: IO ()
 main = do
   Config name <- args
   appSource <- TIO.readFile name
-  libFiles <- Interpret.getLibFiles "example-lib"
+  libFiles <- readDirectoryFiles "example-lib"
   case Interpret.interpretProgram libFiles (name, appSource) of
     Left e ->
       exitWithError (Interpret.prettyError e)

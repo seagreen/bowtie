@@ -41,7 +41,7 @@ testApps :: Spec
 testApps =
   it "lunar-lander" $ do
     appSource <- TIO.readFile "../example-app/lunar-lander.bowtie"
-    libFiles <- getLibFiles "../example-lib" -- TODO: wasted work
+    libFiles <- readDirectoryFiles "../example-lib" -- TODO: wasted work
     -- TODO: get rid of ..
     js <- case sourcesToCore libFiles ("../example-app/lunar-lander.bowtie", appSource) of
             Left e ->

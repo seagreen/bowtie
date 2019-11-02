@@ -35,11 +35,15 @@ import Numeric.Natural as X (Natural)
 
 import Control.Monad.Except
 import GHC.Stack.Types (HasCallStack)
+import System.Directory (listDirectory)
 import System.Exit (exitFailure)
+import System.FilePath (FilePath, (</>))
 import System.IO (stderr)
 import System.IO.Error (ioError, userError)
 
 import qualified Data.Char as Char
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.List as List
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
 import qualified Prelude
@@ -76,6 +80,20 @@ mapError
 mapError f m = do
   res <- runExceptT (withExceptT f m)
   liftEither res
+
+hashmapToSortedList :: Ord k => HashMap k v -> [(k, v)]
+hashmapToSortedList =
+  List.sortOn fst . HashMap.toList
+
+readDirectoryFiles :: FilePath -> IO (HashMap FilePath Text)
+readDirectoryFiles dir = do
+  paths <- (fmap.fmap) (\p -> dir </> p) (listDirectory dir)
+  fmap HashMap.fromList (for paths f)
+    where
+      f :: FilePath -> IO (FilePath, Text)
+      f path = do
+        t <- TIO.readFile path
+        pure (path, t)
 
 charToCodepoint :: Char -> Natural
 charToCodepoint =
