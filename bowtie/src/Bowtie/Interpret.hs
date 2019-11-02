@@ -19,20 +19,15 @@ import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 
+data IError
+  = ParseError ParserErrorBundle
+  | NameClash Text
+  | TypeError TypeError
+  deriving (Eq, Show)
+
 interpret :: Text -> Either IError Untyped.Expr
 interpret src = do
-  (_, core) <- sourceToCore src
-  let
-    untyped :: Untyped.Expr
-    untyped =
-      Untyped.Erase.erase core
-
-  case Untyped.Eval.eval mempty untyped of
-    Left e ->
-      panic ("Evaluating failed (this should never happen): " <> show e)
-
-    Right a ->
-      pure a
+  interpretProgram mempty ("<input>", src)
 
 interpretProgram
   :: HashMap FilePath Text
@@ -51,12 +46,6 @@ interpretProgram libFiles appFile = do
 
     Right a ->
       pure a
-
-data IError
-  = ParseError ParserErrorBundle
-  | NameClash Text
-  | TypeError TypeError
-  deriving (Eq, Show)
 
 prettyError :: IError -> Text
 prettyError err =
