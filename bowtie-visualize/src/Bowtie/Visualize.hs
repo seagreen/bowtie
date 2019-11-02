@@ -38,7 +38,7 @@ run libFiles appFile = do
 
         dsg :: Surface.Expr
         dsg =
-          Surface.Desugar.desugarResult (astTerms ast)
+          Surface.Desugar.extractResult (astTerms ast)
 
       let
         f :: (MonadState Int m, MonadError TypeError m) => m [Constraints]

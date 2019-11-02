@@ -8,12 +8,12 @@ import Bowtie.Type.Kindcheck
 import Bowtie.Type.Parse (ParserErrorBundle)
 
 import qualified Bowtie.Core.Expr as Core
-import qualified Bowtie.Infer.Elaborate as Infer.Elaborate
+import qualified Bowtie.Infer.Elaborate as Elaborate
 import qualified Bowtie.Surface.AST as Surface
-import qualified Bowtie.Surface.Desugar as Surface.Desugar
+import qualified Bowtie.Surface.Desugar as Desugar
 import qualified Bowtie.Surface.Parse as Surface.Parse
-import qualified Bowtie.Untyped.Erase as Untyped.Erase
-import qualified Bowtie.Untyped.Eval as Untyped.Eval
+import qualified Bowtie.Untyped.Erase as Erase
+import qualified Bowtie.Untyped.Eval as Eval
 import qualified Bowtie.Untyped.Expr as Untyped
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Text as Text
@@ -26,7 +26,7 @@ data IError
   deriving (Eq, Show)
 
 interpret :: Text -> Either IError Untyped.Expr
-interpret src = do
+interpret src =
   interpretProgram mempty ("<input>", src)
 
 interpretProgram
@@ -38,45 +38,14 @@ interpretProgram libFiles appFile = do
   let
     untyped :: Untyped.Expr
     untyped =
-      Untyped.Erase.erase core
+      Erase.erase core
 
-  case Untyped.Eval.eval mempty untyped of
+  case Eval.eval mempty untyped of
     Left e ->
       panic ("Evaluating failed (this should never happen): " <> show e)
 
     Right a ->
       pure a
-
-prettyError :: IError -> Text
-prettyError err =
-  case err of
-    ParseError e ->
-      "Parse error: " <> Text.pack (Mega.errorBundlePretty e)
-
-    NameClash t ->
-      t
-
-    TypeError e ->
-      "Type error: " <> show e
-
--- | NOTE: Environment is just the data types.
-sourceToCore :: Text -> Either IError (Environment, Core.Expr)
-sourceToCore src = do
-  ast <- Bifunctor.first ParseError (Surface.Parse.parse "<input>" src)
-  let
-    env :: Environment
-    env =
-      kindcheck (astTypes ast)
-
-    dsg :: Surface.Expr
-    dsg =
-      Surface.Desugar.desugarResult (astTerms ast)
-
-  (_, _, explicitlyTypedExpr) <- Bifunctor.first
-                                   TypeError
-                                   (Infer.Elaborate.elaborate env dsg)
-
-  pure (env, Surface.Desugar.dsg explicitlyTypedExpr)
 
 sourcesToAST :: HashMap FilePath Text -> (FilePath, Text) -> Either IError AST
 sourcesToAST libFiles appFile = do
@@ -99,12 +68,12 @@ sourcesToCore libFiles appFile = do
 
     dsg :: Surface.Expr
     dsg =
-      Surface.Desugar.desugarResult (astTerms ast)
+      Desugar.extractResult (astTerms ast)
 
   (_, _, explicitlyTypedExpr) <- Bifunctor.first
                                    TypeError
-                                   (Infer.Elaborate.elaborate env dsg)
-  pure (env, Surface.Desugar.dsg explicitlyTypedExpr)
+                                   (Elaborate.elaborate env dsg)
+  pure (env, Desugar.desugar explicitlyTypedExpr)
 
 concatSource :: [AST] -> Either Text AST
 concatSource =
@@ -119,3 +88,15 @@ concatSource =
 
         Right a ->
           pure a
+
+prettyError :: IError -> Text
+prettyError err =
+  case err of
+    ParseError e ->
+      "Parse error: " <> Text.pack (Mega.errorBundlePretty e)
+
+    NameClash t ->
+      t
+
+    TypeError e ->
+      "Type error: " <> show e

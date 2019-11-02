@@ -1,7 +1,7 @@
 module Bowtie.Surface.Desugar
-  ( dsg
-  , desugarResult
-  , desugarLet'
+  ( desugar
+  , extractResult
+  , flattenLetBindings
   ) where
 
 import Bowtie.Lib.FreeVars
@@ -18,22 +18,48 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 
-desugarResult :: OrderedMap Id (Expr, Type) -> Expr
-desugarResult decls =
+extractResult :: OrderedMap Id (Expr, Type) -> Expr
+extractResult decls =
   case OrderedMap.lookup (Id "result") decls of
     Nothing ->
       panic "result id not found"
 
     Just (resultExpr, _typ) ->
-      let
-        withoutRes :: OrderedMap Id (Expr, Type)
-        withoutRes =
-          OrderedMap.delete (Id "result") decls
-      in
-        Let withoutRes resultExpr
+      Let (OrderedMap.delete (Id "result") decls) resultExpr
 
-dsg :: Expr -> Core.Expr
-dsg topExpr =
+-- | Used by both inferece and desugaring to core.
+flattenLetBindings :: OrderedMap Id (Expr, Type) -> [(Id, (Expr, Type))]
+flattenLetBindings decls =
+  foldr f mempty components
+  where
+    components :: [Graph.SCC ((Expr, Type), Id, [Id])]
+    components =
+      Graph.stronglyConnCompR (fmap g (OrderedMap.toList decls))
+      where
+        g :: (Id, (Expr, Type)) -> ((Expr, Type), Id, [Id])
+        g (id, (expr, typ)) =
+          ((expr, typ), id, Set.toList (freeVars expr))
+
+    f :: Graph.SCC ((Expr, Type), Id, ids) -> [(Id, (Expr, Type))] -> [(Id, (Expr, Type))]
+    f grph acc =
+      case grph of
+        Graph.AcyclicSCC (expr, id, _) ->
+          (id, expr) : acc
+
+        Graph.CyclicSCC [(expr, id, _)] ->
+          -- Was
+          --
+          --   panic "cyclic"
+          --
+          -- I believe this needs to be let through though so that
+          -- functions can refer to themselves.
+          (id, expr) : acc
+
+        _ ->
+          panic "flattenLetBindings"
+
+desugar :: Expr -> Core.Expr
+desugar topExpr =
   case topExpr of
     Var i ->
       Core.Var i
@@ -41,13 +67,13 @@ dsg topExpr =
     Lam id mType e ->
       case mType of
         Nothing ->
-          panic "dsg type is Nothing"
+          panic "desugar type is Nothing"
 
         Just typ ->
-          Core.Lam id typ (dsg e)
+          Core.Lam id typ (desugar e)
 
     App e1 e2 ->
-      Core.App (dsg e1) (dsg e2)
+      Core.App (desugar e1) (desugar e2)
 
     Let decls e ->
       desugarLet decls e
@@ -59,9 +85,9 @@ dsg topExpr =
       let
         f :: Alt -> Core.Alt
         f (Alt i i2 expr) =
-          Core.Alt i i2 (dsg expr)
+          Core.Alt i i2 (desugar expr)
       in
-        Core.Case (dsg e) (fmap f matches)
+        Core.Case (desugar e) (fmap f matches)
 
     EInt n ->
       Core.EInt n
@@ -96,37 +122,6 @@ desugarText =
       in
         Core.App consCodePoint expr
 
--- This one is used by both inferece and desugaring to core
-desugarLet' :: OrderedMap Id (Expr, Type) -> [(Id, (Expr, Type))]
-desugarLet' decls =
-  foldr f mempty components
-  where
-    components :: [Graph.SCC ((Expr, Type), Id, [Id])]
-    components =
-      Graph.stronglyConnCompR (fmap g (OrderedMap.toList decls))
-      where
-        g :: (Id, (Expr, Type)) -> ((Expr, Type), Id, [Id])
-        g (id, (expr, typ)) =
-          ((expr, typ), id, Set.toList (freeVars expr))
-
-    f :: Graph.SCC ((Expr, Type), Id, ids) -> [(Id, (Expr, Type))] -> [(Id, (Expr, Type))]
-    f grph acc =
-      case grph of
-        Graph.AcyclicSCC (expr, id, _) ->
-          (id, expr) : acc
-
-        Graph.CyclicSCC [(expr, id, _)] ->
-          -- Was
-          --
-          --   panic "cyclic"
-          --
-          -- I believe this needs to be let through though so that
-          -- functions can refer to themselves.
-          (id, expr) : acc
-
-        _ ->
-          panic "desugarLet'"
-
 -- This one isn't used for inference, but just going to core
 desugarLet :: OrderedMap Id (Expr, Type) -> Expr -> Core.Expr
 desugarLet decls e =
@@ -141,7 +136,7 @@ desugarLet decls e =
           -- By doing this here we replace their definitions in the
           -- source code with a new value.
           -- The old way of doing it was to case on id in the Lam
-          -- case of dsg, which replaced the call sites instead of
+          -- case of desugar, which replaced the call sites instead of
           -- the function definitions.
           case i of
             Id "compare" ->
@@ -220,8 +215,8 @@ desugarLet decls e =
                       (Core.Var a)))
 
             _ ->
-              dsg e2
+              desugar e2
       in
         Core.Let (HashMap.singleton i (e3, typ)) acc)
-    (dsg e)
-    (desugarLet' decls)
+    (desugar e)
+    (flattenLetBindings decls)

@@ -24,7 +24,7 @@ unitEnv =
 inferProgram :: AST -> Either TypeError Type
 inferProgram ast = do
   (_, b, _) <-
-    elaborate (kindcheck (astTypes ast)) (desugarResult (astTerms ast))
+    elaborate (kindcheck (astTypes ast)) (extractResult (astTerms ast))
   pure b
 
 infer :: Environment -> Expr -> Either TypeError (Substitution, Type)

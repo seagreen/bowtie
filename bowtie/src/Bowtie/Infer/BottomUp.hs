@@ -83,7 +83,7 @@ bottomUpLet env ms bindings expr = do
   let
     bindingList :: [(Id, (Expr, Type))]
     bindingList =
-      List.reverse (Desugar.desugarLet' bindings)
+      List.reverse (Desugar.flattenLetBindings bindings)
 
   (aBody, cBody, tBody) <- bottomUp env ms expr
 

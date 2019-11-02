@@ -76,7 +76,7 @@ runInvalidSyntax (name, src) =
 runIllTyped :: (FilePath, Text) -> Spec
 runIllTyped (name, src) =
   it name $
-    case Interpret.sourceToCore src of
+    case Interpret.sourcesToCore mempty ("<input>", src) of
       Left err ->
         case err of
           Interpret.ParseError _ ->
