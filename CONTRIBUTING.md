@@ -18,4 +18,4 @@ The codebase is meant to be understandable by new Haskellers. One of the tools t
 
 Opening issues or forking Bowtie are likely to be more fruitful than making PRs (forks are especially satisfying, as Bowtie is meant to be a reasonable starting point for language experiments).
 
-If want to make a PR anyway, probably ask first, and then in your PR add your name to [CONTRIBUTORS.md](CONTRIBUTORS.md).
+If want to make a PR anyway, probably ask first, and then in the PR add your name to [CONTRIBUTORS.md](CONTRIBUTORS.md).
