@@ -6,4 +6,4 @@ Contributors listed here agree to license their contributions under the followin
 | :------- | :--- |
 | [@seagreen](https://github.com/seagreen) | Ian Jeffries |
 
-(Based on PureScript's [contributors](https://github.com/purescript/purescript/blob/master/CONTRIBUTORS.md) file.)
+(Loosely based on PureScript's [contributors](https://github.com/purescript/purescript/blob/master/CONTRIBUTORS.md) file.)
