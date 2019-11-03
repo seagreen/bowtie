@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c8fdc9986ea28c4cfdef99b3615e5629567048358ab3389b396ce8fb6704cf6c
+-- hash: cd24b0ed093a594634a1018cbbcb9ef796b19f5b5e6603642a0dfa943ccf6715
 
 name:           bowtie-blueprint
 version:        0.0.0
@@ -30,7 +30,6 @@ library
     , megaparsec
     , mtl
     , parser-combinators
-    , show-prettyprint
     , text
     , transformers
     , unordered-containers
@@ -59,7 +58,6 @@ executable bowtie-blueprint
     , mtl
     , optparse-applicative
     , parser-combinators
-    , show-prettyprint
     , text
     , transformers
     , unordered-containers
@@ -90,7 +88,6 @@ test-suite spec
     , megaparsec
     , mtl
     , parser-combinators
-    , show-prettyprint
     , text
     , transformers
     , unordered-containers

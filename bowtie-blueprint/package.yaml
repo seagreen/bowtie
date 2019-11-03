@@ -34,7 +34,6 @@ dependencies:
   - cmark
   - megaparsec
   - parser-combinators
-  - show-prettyprint
 
   # Other
 
