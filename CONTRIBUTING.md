@@ -12,7 +12,7 @@ Because it's meant to support a book, I need a deep understanding of all parts o
 
 ## Particular style
 
-The codebase is meant to be understandable by new Haskellers. One of the tools to do that is a distinct style (e.g. note the preference for `fmap` over `<$>` and parentheses over `$`), and consistency of style is more important to it than most other projects.
+The codebase is meant to be understandable by new Haskellers. One of the tools to do that is a distinct style (e.g. note the preference for `fmap` over `<$>` and parentheses over `$`) and consistency of style is more important to it than most other projects.
 
 # Conclusion
 
