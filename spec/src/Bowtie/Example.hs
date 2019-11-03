@@ -22,19 +22,19 @@ import Prelude
 -- we don't want this package to depend on the language implementation.)
 wellTyped :: [(FilePath, Text)]
 wellTyped =
-  process $(makeRelativeToProject "../well-typed-examples" >>= embedDir)
+  process $(makeRelativeToProject "well-typed-examples" >>= embedDir)
 
 illTyped :: [(FilePath, Text)]
 illTyped =
-  process $(makeRelativeToProject "../ill-typed-examples" >>= embedDir)
+  process $(makeRelativeToProject "ill-typed-examples" >>= embedDir)
 
 validSyntax :: [(FilePath, Text)]
 validSyntax =
-  process $(makeRelativeToProject "../valid-syntax-examples" >>= embedDir)
+  process $(makeRelativeToProject "valid-syntax-examples" >>= embedDir)
 
 invalidSyntax :: [(FilePath, Text)]
 invalidSyntax =
-  process $(makeRelativeToProject "../invalid-syntax-examples" >>= embedDir)
+  process $(makeRelativeToProject "invalid-syntax-examples" >>= embedDir)
 
 -- | Internal
 process :: [(FilePath, ByteString)] -> [(FilePath, Text)]

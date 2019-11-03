@@ -5,7 +5,7 @@ packages:
   - bowtie-blueprint
   - bowtie-js
   - bowtie-visualize
-  - spec/bowtie-example-hs
+  - spec
 
 extra-deps:
   - cmark-0.5.6.3 # get the latest
