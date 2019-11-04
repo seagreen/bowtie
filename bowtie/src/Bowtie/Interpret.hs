@@ -1,4 +1,12 @@
-module Bowtie.Interpret where
+module Bowtie.Interpret
+  ( IError(..)
+  , interpret
+  , interpretProgram
+  , sourcesToAST
+  , sourcesToCore
+  , concatSource
+  , prettyError
+  ) where
 
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
@@ -24,55 +32,109 @@ data IError
   | TypeError Infer.TypeError
   deriving (Eq, Show)
 
+-- | For test and REPL use.
 interpret :: Text -> Either IError Untyped.Expr
 interpret src =
   interpretProgram mempty ("<input>", src)
 
+-- | For use by the executable.
 interpretProgram
   :: HashMap FilePath Text
   -> (FilePath, Text)
   -> Either IError Untyped.Expr
 interpretProgram libFiles appFile = do
-  (_, core) <- sourcesToCore libFiles appFile
+  (_, res) <- interpretImpl libFiles appFile
+  (_, _, val) <- res
+  pure val
+
+-- | Internal.
+--
+-- NOTE: Environment is just the data types.
+interpretImpl
+  :: HashMap FilePath Text
+  -> (FilePath, Text)
+  -> Either
+       IError
+       ( AST
+       , Either
+           IError
+           (Environment, Core.Expr, Untyped.Expr)
+       )
+interpretImpl libFiles appFile = do
+
+  -- Parse
+
   let
-    untyped :: Untyped.Expr
-    untyped =
-      Erase.erase core
+    parse :: (FilePath, Text) -> Either IError AST
+    parse =
+      Bifunctor.first ParseError . uncurry Surface.Parse.parse
 
-  case Eval.eval mempty untyped of
-    Left e ->
-      panic ("Evaluating failed (this should never happen): " <> show e)
+  libPrograms <- for (hashmapToSortedList libFiles) parse
+  appProgram <- parse appFile
 
-    Right a ->
-      pure a
+  -- Combine
 
+  ast <- Bifunctor.first
+           NameClash
+           (concatSource (libPrograms <> [appProgram])) -- PERFORMANCE
+
+  -- Kindcheck and infer
+
+  let
+    res :: Either IError (Environment, Core.Expr, Untyped.Expr)
+    res = do
+      let
+        env :: Environment
+        env =
+          kindcheck (astTypes ast)
+
+        dsg :: Surface.Expr
+        dsg =
+          Desugar.extractResult (astTerms ast)
+
+      (_, _, explicitlyTypedExpr) <- Bifunctor.first
+                                       TypeError
+                                       (Infer.elaborate env dsg)
+
+      -- Desugar and erase
+
+      let
+        core :: Core.Expr
+        core =
+          Desugar.desugar explicitlyTypedExpr
+
+        untyped :: Untyped.Expr
+        untyped =
+          Erase.erase core
+
+      -- Eval
+
+      case Eval.eval mempty untyped of
+        Left e ->
+          panic ("Evaluating failed (this should never happen): " <> show e)
+
+        Right val ->
+          pure (env, core, val)
+
+  pure (ast, res)
+
+-- | For use by tests or other packages.
 sourcesToAST :: HashMap FilePath Text -> (FilePath, Text) -> Either IError AST
 sourcesToAST libFiles appFile = do
-  libPrograms <- Bifunctor.first ParseError (for (hashmapToSortedList libFiles) parse)
-  appProgram <- Bifunctor.first ParseError (parse appFile)
-  Bifunctor.first NameClash (concatSource (libPrograms <> [appProgram])) -- PERFORMANCE
-  where
-    parse :: (FilePath, Text) -> Either ParserErrorBundle AST
-    parse =
-      uncurry Surface.Parse.parse
+  (ast, _) <- interpretImpl libFiles appFile
+  pure ast
 
--- | NOTE: Environment is just the data types.
-sourcesToCore :: HashMap FilePath Text -> (FilePath, Text) -> Either IError (Environment, Core.Expr)
+-- | For use by tests or other packages.
+--
+-- NOTE: Environment is just the data types.
+sourcesToCore
+  :: HashMap FilePath Text
+  -> (FilePath, Text)
+  -> Either IError (Environment, Core.Expr)
 sourcesToCore libFiles appFile = do
-  ast <- sourcesToAST libFiles appFile
-  let
-    env :: Environment
-    env =
-      kindcheck (astTypes ast)
-
-    dsg :: Surface.Expr
-    dsg =
-      Desugar.extractResult (astTerms ast)
-
-  (_, _, explicitlyTypedExpr) <- Bifunctor.first
-                                   TypeError
-                                   (Infer.elaborate env dsg)
-  pure (env, Desugar.desugar explicitlyTypedExpr)
+  (_, res) <- interpretImpl libFiles appFile
+  (env, core, _) <- res
+  pure (env, core)
 
 concatSource :: [AST] -> Either Text AST
 concatSource =
