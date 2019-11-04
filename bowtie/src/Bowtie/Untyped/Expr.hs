@@ -2,7 +2,6 @@ module Bowtie.Untyped.Expr where
 
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
-import Data.HashMap.Strict (HashMap)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set

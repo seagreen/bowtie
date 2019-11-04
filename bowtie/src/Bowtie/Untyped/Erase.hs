@@ -1,57 +1,57 @@
 module Bowtie.Untyped.Erase where
 
-import Bowtie.Core.Expr
 import Bowtie.Lib.Prelude
+import Bowtie.Untyped.Expr
 
-import qualified Bowtie.Untyped.Expr as U
+import qualified Bowtie.Core.Expr as Core
 import qualified Data.HashMap.Strict as HashMap
 
-erase :: Expr -> U.Expr
+erase :: Core.Expr -> Expr
 erase topExpr =
   case topExpr of
-    Var i ->
-      U.Var i
+    Core.Var i ->
+      Var i
 
-    Lam id _ e ->
-      U.Lam mempty id (erase e)
+    Core.Lam id _ e ->
+      Lam mempty id (erase e)
 
-    App e1 e2 ->
-      U.App (erase e1) (erase e2)
+    Core.App e1 e2 ->
+      App (erase e1) (erase e2)
 
-    Let decls e ->
-      U.Let (fmap (erase . fst) decls) (erase e)
+    Core.Let decls e ->
+      Let (fmap (erase . fst) decls) (erase e)
 
-    Construct tag ->
-      U.Construct tag mempty
+    Core.Construct tag ->
+      Construct tag mempty
 
-    Case e matches ->
+    Core.Case e matches ->
       let
-        f :: Alt -> HashMap Id U.Match
-        f (Alt i i2 expr) =
-          HashMap.singleton i (U.Match i2 (erase expr))
+        f :: Core.Alt -> HashMap Id Match
+        f (Core.Alt i i2 expr) =
+          HashMap.singleton i (Match i2 (erase expr))
       in
-        U.Case (erase e) (foldMap f matches)
+        Case (erase e) (foldMap f matches)
 
-    EInt n ->
-      U.EInt n
+    Core.EInt n ->
+      EInt n
 
-    EOp op ->
-      U.EOp (eraseOperation op)
+    Core.EOp op ->
+      EOp (eraseOperation op)
 
-eraseOperation :: Operation -> U.Operation
+eraseOperation :: Core.Operation -> Operation
 eraseOperation op =
   case op of
-    Compare e1 e2 ->
-      U.Compare (erase e1) (erase e2)
+    Core.Compare e1 e2 ->
+      Compare (erase e1) (erase e2)
 
-    Plus e1 e2 ->
-      U.Plus (erase e1) (erase e2)
+    Core.Plus e1 e2 ->
+      Plus (erase e1) (erase e2)
 
-    Multiply e1 e2 ->
-      U.Multiply (erase e1) (erase e2)
+    Core.Multiply e1 e2 ->
+      Multiply (erase e1) (erase e2)
 
-    ShowInt e ->
-      U.ShowInt (erase e)
+    Core.ShowInt e ->
+      ShowInt (erase e)
 
-    Panic e ->
-      U.Panic (erase e)
+    Core.Panic e ->
+      Panic (erase e)
