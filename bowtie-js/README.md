@@ -1,4 +1,4 @@
-![sloc-bowtie-js](./bowtie/misc/generated/sloc-bowtie-js.svg)
+![sloc-bowtie-js](../bowtie/misc/generated/sloc-bowtie-js.svg)
 
 JavaScript transpiler (WIP)
 

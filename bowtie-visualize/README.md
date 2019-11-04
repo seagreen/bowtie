@@ -1,4 +1,4 @@
-![sloc-bowtie-visualize](./bowtie/misc/generated/sloc-bowtie-visualize.svg)
+![sloc-bowtie-visualize](../bowtie/misc/generated/sloc-bowtie-visualize.svg)
 
 Tool to illustrate type inference or term evaluation (WIP)
 
