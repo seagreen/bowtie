@@ -7,6 +7,7 @@ import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 
 import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Set as Set
 
 -- | (A type environment, not a term environment like appear elsewhere
 -- in the code)
@@ -28,6 +29,10 @@ addBinding :: Id -> TypeScheme -> Environment -> Environment
 addBinding id t env =
   Environment (HashMap.insert id t (unEnvironment env))
 
-environmentToList :: Environment -> [(Id, TypeScheme)]
-environmentToList (Environment env) =
+keys :: Environment -> Set Id
+keys (Environment env) =
+  Set.fromList (HashMap.keys env)
+
+toList :: Environment -> [(Id, TypeScheme)]
+toList (Environment env) =
   HashMap.toList env

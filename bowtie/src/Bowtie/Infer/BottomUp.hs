@@ -1,6 +1,6 @@
 module Bowtie.Infer.BottomUp where
 
-import Bowtie.Infer.Assumptions
+import Bowtie.Infer.Assumptions (Assumptions)
 import Bowtie.Infer.Constraints
 import Bowtie.Lib.Environment
 import Bowtie.Lib.OrderedMap (OrderedMap)
@@ -13,7 +13,6 @@ import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Bowtie.Infer.Assumptions as Assumptions
 import qualified Bowtie.Lib.Builtin as Builtin
 import qualified Bowtie.Surface.Desugar as Desugar
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.List as List
 import qualified Data.Set as Set
 
@@ -34,11 +33,9 @@ bottomUp env ms topExpr =
       newTypeVar <- fmap TVariable genVar
 
       let
-        Assumptions asX = a1
-
         newC :: Constraints
         newC =
-          case HashMap.lookup id asX of
+          case Assumptions.lookup id a1 of
             Nothing ->
               mempty
 
@@ -92,12 +89,9 @@ bottomUpLet env ms bindings expr = do
       (a1, c1, t1) <- bottomUp env ms e
 
       let
-        -- todo: not sure if a1 <> a2 is right
-        Assumptions asX = a1 <> a2
-
         newC :: Constraints
         newC =
-          case HashMap.lookup id asX of
+          case Assumptions.lookup id (a1 <> a2) of -- todo: not sure if a1 <> a2 is right
             Nothing ->
               mempty
 
@@ -160,11 +154,9 @@ bottomUpCase env ms _expr alts = do -- TODO: use expr
       let idds = fmap fst xs
       (aa, cc, t) <- bottomUp env (ms <> Set.fromList idds) ex
       let
-        Assumptions asX = aa
-
         neC :: (Id, Type) -> Constraints -> Constraints
         neC (id, rt) oldc =
-          case HashMap.lookup id asX of
+          case Assumptions.lookup id aa of
             Nothing ->
               oldc
 

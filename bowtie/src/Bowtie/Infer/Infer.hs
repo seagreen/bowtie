@@ -1,7 +1,7 @@
 -- | Based on <doc.md#HeerenHagePaper>
 module Bowtie.Infer.Infer where
 
-import Bowtie.Infer.Assumptions
+import Bowtie.Infer.Assumptions (Assumptions)
 import Bowtie.Infer.BottomUp
 import Bowtie.Infer.Constraints
 import Bowtie.Infer.Solve
@@ -14,12 +14,12 @@ import Control.Monad.State.Class
 import Control.Monad.Trans.State
 
 import qualified Bowtie.Infer.Assumptions as Assumptions
-import qualified Data.HashMap.Strict as HashMap
+import qualified Bowtie.Lib.Environment as Environment
 import qualified Data.Set as Set
 
 data TypeError
   = SolveError SolveError
-  | AssumptionsRemain [(Id, Set Type)]
+  | AssumptionsRemain Assumptions
   deriving (Eq, Show)
 
 newtype Infer a
@@ -51,10 +51,12 @@ gatherConstraints env expr = do
 
   -- if dom A not a subset of domain env then undefined variables exist
   let
-    Assumptions aX = a
-  _ <- case HashMap.toList (HashMap.difference aX (unEnvironment env)) of
-         [] -> pure ()
-         ks -> throwError (AssumptionsRemain ks)
+    remaining :: Set Id
+    remaining =
+      Set.difference (Assumptions.keys a) (Environment.keys env)
+  if Set.null remaining
+    then pure ()
+    else throwError (AssumptionsRemain a)
 
   pure (c <> explicitConstraintOnSet env a, t)
 
@@ -66,6 +68,6 @@ explicitConstraintOnSet env a =
     f :: [Constraint]
     f = do
       (id, typ) <- Assumptions.toList a
-      (id2, ts) <- environmentToList env
+      (id2, ts) <- Environment.toList env
       guard (id == id2)
       pure (ExplicitInstanceConstraint typ ts)
