@@ -17,7 +17,7 @@ serializeTop ast =
     _ ->
       serialize ast
 
-serialize :: AST -> Text -- TODO: text builder
+serialize :: AST -> Text -- PERFORMANCE: could use a builder
 serialize topAst =
   case topAst of
     Var id ->
