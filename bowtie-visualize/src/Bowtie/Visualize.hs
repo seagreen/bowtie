@@ -4,13 +4,12 @@ module Bowtie.Visualize
   ) where
 
 import Bowtie.Infer.Constraints
-import Bowtie.Infer.Solve
+import Bowtie.Infer.Solve (SolveError(..), next, solveConstraint)
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
-import Bowtie.Surface.Infer
-import Bowtie.Type.Kindcheck
-import Bowtie.Visualize.GraphConstraints
+import Bowtie.Type.Kindcheck (kindcheck)
+import Bowtie.Visualize.GraphConstraints (graphConstraints)
 import Control.Monad.Except
 import Control.Monad.State.Class
 import System.Process.Typed
@@ -19,6 +18,7 @@ import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Bowtie.Interpret as Interpret
 import qualified Bowtie.Surface.AST as Surface
 import qualified Bowtie.Surface.Desugar as Surface.Desugar
+import qualified Bowtie.Surface.Infer as Infer
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.List as List
@@ -41,12 +41,12 @@ run libFiles appFile = do
           Surface.Desugar.extractResult (astTerms ast)
 
       let
-        f :: (MonadState Int m, MonadError TypeError m) => m [Constraints]
+        f :: (MonadState Int m, MonadError Infer.TypeError m) => m [Constraints]
         f = do
-          (constraints, _) <- gatherConstraints env dsg
-          mapError SolveError (solutionSteps constraints)
+          (constraints, _) <- Infer.gatherConstraints env dsg
+          mapError Infer.SolveError (solutionSteps constraints)
 
-      case runInfer f of
+      case Infer.runInfer f of
         Left e ->
           throwText (show e)
 

@@ -5,7 +5,7 @@ module Main where
 import Bowtie.Interpret
 import Bowtie.JS
 import Bowtie.Lib.Prelude
-import Data.String.QQ
+import Data.String.QQ (s)
 import System.FilePath ((</>))
 import Test.Hspec
 

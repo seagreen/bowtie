@@ -1,9 +1,9 @@
 module Bowtie.Blueprint where
 
 import Bowtie.Lib.Prelude
+import Bowtie.Type.AST (Type, TypeDeclaration)
 
-import qualified Bowtie.Type.AST as Type.AST
-import qualified Bowtie.Type.Parse as Type.Parse
+import qualified Bowtie.Type.Parse as Parse
 import qualified CMark
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
@@ -11,12 +11,12 @@ import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 
 data Blueprint
-  = Blueprint (HashMap Id Type.AST.TypeDeclaration) (HashMap Id Type.AST.Type)
+  = Blueprint (HashMap Id TypeDeclaration) (HashMap Id Type)
   deriving (Eq, Show)
 
 data Item
-  = Decl Id Type.AST.TypeDeclaration
-  | Func Id Type.AST.Type
+  = Decl Id TypeDeclaration
+  | Func Id Type
 
 blueprint :: Text -> Either Text Blueprint
 blueprint src = do
@@ -56,14 +56,14 @@ conv :: [Item] -> Blueprint
 conv items =
   Blueprint decls funcs
   where
-    decls :: HashMap Id Type.AST.TypeDeclaration
+    decls :: HashMap Id TypeDeclaration
     decls =
       let xs = mapMaybe (\a -> case a of
                                  Decl id def -> Just (id, def)
                                  Func {} -> Nothing) items
       in HashMap.fromList xs
 
-    funcs :: HashMap Id Type.AST.Type
+    funcs :: HashMap Id Type
     funcs =
       let xs = mapMaybe (\a -> case a of
                                  Func id def -> Just (id, def)
@@ -72,22 +72,22 @@ conv items =
 
 parseBlueprint :: Text -> Either (Mega.ParseErrorBundle Text Void) Blueprint
 parseBlueprint =
-  fmap conv . Type.Parse.runParser programTypesParser "<input>"
+  fmap conv . Parse.runParser programTypesParser "<input>"
 
-programTypesParser :: Type.Parse.Parser [Item]
+programTypesParser :: Parse.Parser [Item]
 programTypesParser = do
   res <-
     many $ Mega.try $ do
-      _ <- Lexer.indentGuard Type.Parse.spacesOrNewlines EQ Mega.pos1
+      _ <- Lexer.indentGuard Parse.spacesOrNewlines EQ Mega.pos1
       parseOne
-  _ <- Lexer.indentGuard Type.Parse.spacesOrNewlines EQ Mega.pos1
+  _ <- Lexer.indentGuard Parse.spacesOrNewlines EQ Mega.pos1
   pure res
 
-parseOne :: Type.Parse.Parser Item
+parseOne :: Parse.Parser Item
 parseOne =
   Mega.label "parseOne"
-    (   Mega.try (fmap (uncurry Decl) Type.Parse.declEntryParser)
-    <|> Mega.try (fmap (uncurry Func) Type.Parse.defParser)
+    (   Mega.try (fmap (uncurry Decl) Parse.declEntryParser)
+    <|> Mega.try (fmap (uncurry Func) Parse.defParser)
     )
 
 -- * Markdown

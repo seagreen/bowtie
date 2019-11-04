@@ -4,7 +4,7 @@ module Bowtie.Surface.AST
   ) where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.OrderedMap
+import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude
 import Bowtie.Type.AST
 

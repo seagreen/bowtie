@@ -8,15 +8,15 @@ module Bowtie.JS
   , runTextCommand
   ) where
 
-import Bowtie.Core.Expr
-import Bowtie.JS.Imperativize
-import Bowtie.JS.Serialize
+import Bowtie.JS.Imperativize (makeImp)
+import Bowtie.JS.Serialize (serializeTop)
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
-import Data.String.QQ
+import Data.String.QQ (s)
 import Data.Text.Encoding (decodeUtf8)
 import System.Process.Typed
 
+import qualified Bowtie.Core.Expr as Core
 import qualified Bowtie.Interpret as Interpret
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text as Text
@@ -51,7 +51,7 @@ transpile src = do
   (env, coreExpr) <- Interpret.sourcesToCore mempty ("<input>", src)
   pure (transpileCore env coreExpr)
 
-transpileCore :: Environment -> Expr -> Text
+transpileCore :: Environment -> Core.Expr -> Text
 transpileCore env expr =
   let
     jsAST = makeImp env expr
