@@ -1,7 +1,6 @@
 module Bowtie.JS.Serialize
   ( serializeTop
   , serialize
-  , serializeOperation
   ) where
 
 import Bowtie.JS.AST
@@ -51,8 +50,8 @@ serialize topAst =
     Else ast ->
       " else { " <> serialize ast <> " }"
 
-    Throw t ->
-      "throw \"" <> t <> "\""
+    Throw ast ->
+      "throw " <> serialize ast
 
     Equal a1 a2 ->
       serialize a1 <> " === " <> serialize a2
@@ -66,12 +65,6 @@ serialize topAst =
     JSString t ->
       "\"" <> t <> "\""
 
-    JSOp op ->
-      serializeOperation op
-
-serializeOperation :: Operation -> Text
-serializeOperation op =
-  case op of
     Compare ast1 ast2 ->
       "$compareBuiltin(" <> serialize ast1 <> ", " <> serialize ast2 <> ")"
 
@@ -83,9 +76,6 @@ serializeOperation op =
 
     ShowInt ast ->
       "$unicodeListizeBuiltin(" <> serialize ast <> ".toString())"
-
-    Panic expr -> -- Will only be used with Text
-      "(() => { throw " <> serialize expr <> "})()"
 
 serializeId :: Id -> Text
 serializeId (Id t) =

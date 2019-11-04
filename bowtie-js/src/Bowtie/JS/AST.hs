@@ -16,19 +16,15 @@ data AST
   | IndexArray AST Natural
   | IfThen AST AST
   | Else AST
-  | Throw Text
+  | Throw AST -- Will only be used with JSString
   | Equal AST AST
   | LambdaUnit AST -- ^ @(() => { " <> ast <> "})()@
 
   | JSInt Integer
   | JSString Text
-  | JSOp Operation
-  deriving (Eq, Show)
 
-data Operation
-  = Compare AST AST
+  | Compare AST AST
   | Plus AST AST -- ^ Only works on Ints
   | Multiply AST AST -- ^ Only works on Ints
   | ShowInt AST -- ^ Only works on Int
-  | Panic AST -- ^ Only works on Text
   deriving (Eq, Show)

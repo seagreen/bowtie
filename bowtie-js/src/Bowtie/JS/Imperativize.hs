@@ -80,16 +80,16 @@ coreToImp topExpr =
           (Block
             (  Assignment (Var (Id "$1")) (coreToImp expr)
              : fmap altToImp alts
-            <> [Else (Throw "no match")]
+            <> [Else (Throw (JSString "no match"))]
             ))
 
     Core.PrimInt n ->
       JSInt n
 
     Core.PrimOp op ->
-      JSOp (coreOperationToImp op)
+      coreOperationToImp op
 
-coreOperationToImp :: Core.Operation -> JS.Operation
+coreOperationToImp :: Core.Operation -> JS.AST
 coreOperationToImp op =
   case op of
     Core.Compare e1 e2 ->
@@ -105,7 +105,7 @@ coreOperationToImp op =
       ShowInt (coreToImp expr)
 
     Core.Panic expr ->
-      Panic (coreToImp expr)
+      LambdaUnit (Throw (coreToImp expr))
 
 -- eg ["Maybe", 5], not [Maybe, 5]
 conToString :: Id -> JS.AST
