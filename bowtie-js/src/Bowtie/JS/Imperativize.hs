@@ -86,7 +86,7 @@ coreToImp topExpr =
     Core.PrimInt n ->
       JSInt n
 
-    Core.EOp op ->
+    Core.PrimOp op ->
       JSOp (coreOperationToImp op)
 
 coreOperationToImp :: Core.Operation -> JS.Operation

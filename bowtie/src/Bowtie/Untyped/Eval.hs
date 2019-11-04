@@ -41,7 +41,7 @@ eval topEnv topExpr =
     PrimInt n ->
       pure (PrimInt n)
 
-    EOp op ->
+    PrimOp op ->
       evalOp topEnv op
 
 evalLam :: Environment -> Environment -> Id -> Expr -> Either Error Expr

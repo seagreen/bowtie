@@ -35,8 +35,8 @@ erase topExpr =
     Core.PrimInt n ->
       PrimInt n
 
-    Core.EOp op ->
-      EOp (eraseOperation op)
+    Core.PrimOp op ->
+      PrimOp (eraseOperation op)
 
 eraseOperation :: Core.Operation -> Operation
 eraseOperation op =

@@ -17,7 +17,7 @@ data Expr
   | Case Expr (HashMap Id Match)
 
   | PrimInt Integer
-  | EOp Operation
+  | PrimOp Operation
   deriving (Eq, Show, Generic, NFData)
 
 instance FreeVars Expr where
@@ -53,7 +53,7 @@ instance FreeVars Expr where
         mempty
 
       -- easy to forget there can be free variables in an Op
-      EOp op ->
+      PrimOp op ->
         case op of
           Compare e1 e2 ->
             freeVars e1 <> freeVars e2

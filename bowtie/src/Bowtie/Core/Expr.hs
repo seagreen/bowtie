@@ -18,7 +18,7 @@ data Expr
   | Case Expr [Alt]
 
   | PrimInt Integer
-  | EOp Operation
+  | PrimOp Operation
   deriving (Eq, Show)
 
 data Alt
@@ -59,7 +59,7 @@ instance FreeVars Expr where
       PrimInt _ ->
         mempty
 
-      EOp op ->
+      PrimOp op ->
         case op of
           Compare e1 e2 ->
             freeVars e1 <> freeVars e2

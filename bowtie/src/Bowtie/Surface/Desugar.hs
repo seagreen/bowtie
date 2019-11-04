@@ -150,7 +150,7 @@ desugarLet decls e =
                   (Core.Lam
                     b
                     aType
-                    (Core.EOp
+                    (Core.PrimOp
                       (Core.Compare
                         (Core.Var a)
                         (Core.Var b))))
@@ -167,7 +167,7 @@ desugarLet decls e =
                   (Core.Lam
                     b
                     iType
-                    (Core.EOp
+                    (Core.PrimOp
                       (Core.Plus
                         (Core.Var a)
                         (Core.Var b))))
@@ -184,7 +184,7 @@ desugarLet decls e =
                   (Core.Lam
                     b
                     iType
-                    (Core.EOp
+                    (Core.PrimOp
                       (Core.Multiply
                         (Core.Var a)
                         (Core.Var b))))
@@ -197,7 +197,7 @@ desugarLet decls e =
                 Core.Lam
                   a
                   arrTyp
-                  (Core.EOp
+                  (Core.PrimOp
                     (Core.ShowInt
                       (Core.Var a)))
 
@@ -209,7 +209,7 @@ desugarLet decls e =
                 Core.Lam
                   a
                   textType
-                  (Core.EOp
+                  (Core.PrimOp
                     (Core.Panic
                       (Core.Var a)))
 
