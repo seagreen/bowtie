@@ -89,7 +89,7 @@ desugar topExpr =
         Core.Case (desugar e) (fmap f matches)
 
     IntLiteral n ->
-      Core.EInt n
+      Core.PrimInt n
 
     TextLiteral t ->
       desugarText t
@@ -117,7 +117,7 @@ desugarText =
         consCodePoint =
           Core.App
             (Core.Construct Builtin.cons)
-            (Core.EInt (fromIntegral (charToCodepoint c)))
+            (Core.PrimInt (fromIntegral (charToCodepoint c)))
       in
         Core.App consCodePoint expr
 

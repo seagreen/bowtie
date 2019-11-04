@@ -16,7 +16,7 @@ data Expr
   | Construct Id [Expr]
   | Case Expr (HashMap Id Match)
 
-  | EInt Integer
+  | PrimInt Integer
   | EOp Operation
   deriving (Eq, Show, Generic, NFData)
 
@@ -49,7 +49,7 @@ instance FreeVars Expr where
       Case expr bindingsMap ->
         freeVars expr <> foldMap freeVars bindingsMap
 
-      EInt _ ->
+      PrimInt _ ->
         mempty
 
       -- easy to forget there can be free variables in an Op

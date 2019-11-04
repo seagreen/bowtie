@@ -17,7 +17,7 @@ data Expr
   | Construct Id
   | Case Expr [Alt]
 
-  | EInt Integer
+  | PrimInt Integer
   | EOp Operation
   deriving (Eq, Show)
 
@@ -27,9 +27,9 @@ data Alt
 
 data Operation
   = Compare Expr Expr
-  | Plus Expr Expr -- ^ Only works on EInts
-  | Multiply Expr Expr -- ^ Only works on EInts
-  | ShowInt Expr -- ^ Only works on EInt
+  | Plus Expr Expr -- ^ Only works on PrimInts
+  | Multiply Expr Expr -- ^ Only works on PrimInts
+  | ShowInt Expr -- ^ Only works on PrimInt
   | Panic Expr -- ^ Only works on Text
   deriving (Eq, Show)
 
@@ -56,7 +56,7 @@ instance FreeVars Expr where
       Case e alts ->
         freeVars e <> foldMap freeVars alts
 
-      EInt _ ->
+      PrimInt _ ->
         mempty
 
       EOp op ->

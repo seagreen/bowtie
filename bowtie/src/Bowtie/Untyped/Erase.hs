@@ -32,8 +32,8 @@ erase topExpr =
       in
         Case (erase e) (foldMap f matches)
 
-    Core.EInt n ->
-      EInt n
+    Core.PrimInt n ->
+      PrimInt n
 
     Core.EOp op ->
       EOp (eraseOperation op)

@@ -38,8 +38,8 @@ eval topEnv topExpr =
     Case expr alternatives -> do
       evalCase topEnv expr alternatives
 
-    EInt n ->
-      pure (EInt n)
+    PrimInt n ->
+      pure (PrimInt n)
 
     EOp op ->
       evalOp topEnv op
@@ -136,12 +136,12 @@ evalOp topEnv op =
     Plus e1 e2 -> do
       n1 <- evalInt topEnv e1
       n2 <- evalInt topEnv e2
-      pure (EInt (n1 + n2))
+      pure (PrimInt (n1 + n2))
 
     Multiply e1 e2 -> do
       n1 <- evalInt topEnv e1
       n2 <- evalInt topEnv e2
-      pure (EInt (n1 * n2))
+      pure (PrimInt (n1 * n2))
 
     ShowInt expr -> do
       n <- evalInt topEnv expr
@@ -164,7 +164,7 @@ showIntBuiltin n =
     consCodepoint c expr =
       Construct
         Builtin.cons
-        [ EInt (fromIntegral (charToCodepoint c))
+        [ PrimInt (fromIntegral (charToCodepoint c))
         , expr
         ]
 
@@ -172,7 +172,7 @@ evalInt :: Environment -> Expr -> Either Error Integer
 evalInt env expr = do
   res <- eval env expr
   case res of
-    EInt n ->
+    PrimInt n ->
       pure n
 
     _ ->

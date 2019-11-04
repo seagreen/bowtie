@@ -83,7 +83,7 @@ coreToImp topExpr =
             <> [Else (Throw "no match")]
             ))
 
-    Core.EInt n ->
+    Core.PrimInt n ->
       JSInt n
 
     Core.EOp op ->
