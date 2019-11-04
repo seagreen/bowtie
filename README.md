@@ -8,57 +8,12 @@ Bowtie is designed to support a WIP [book](http://lambdakit.com/), but those are
 
 # In this repo
 
-## [./bowtie](./bowtie)
-
 ![modules](./bowtie/misc/generated/modules.svg)
 
-![sloc-bowtie](./bowtie/misc/generated/sloc-bowtie.svg)
++ [./bowtie](./bowtie): Reference implementation
 
-Reference implementation. Parser, typechecker, and tree-walking evaluator (WIP).
++ [./spec](./spec): Description of the language
 
-## [./spec](./spec)
++ [./example-app](./example-app) and [./example-lib](./example-lib): Bowtie code
 
-Informal specification with a description of the language and test examples (WIP).
-
-## [./example-lib](./example-lib)
-
-Bowtie code!
-
-## [./example-app](./example-app)
-
-Bowtie programs!
-
-```sh
-stack install
-# installs bowtie, bowtie-js, bowtie-blueprint, and bowtie-visualize
-
-bowtie ./example-app/lunar-lander.bowtie
--- this evaluates lunar-lander and prints the result to the screen.
--- to get this into a webpage and actually play it see ./bowtie-js
-```
-
-## [./bowtie-js](./bowtie-js)
-
-![sloc-bowtie-js](./bowtie/misc/generated/sloc-bowtie-js.svg)
-
-JavaScript transpiler (WIP).
-
-```sh
-stack install
-
-bowtie-js example-app/lunar-lander.bowtie > bowtie-js/main.js
-
-firefox ./bowtie-js/index.html
-```
-
-## [./bowtie-blueprint](./bowtie-blueprint)
-
-![sloc-bowtie-blueprint](./bowtie/misc/generated/sloc-bowtie-blueprint.svg)
-
-Linter for a types-only variant of the language (WIP).
-
-## [./bowtie-visualize](./bowtie-visualize)
-
-![sloc-bowtie-visualize](./bowtie/misc/generated/sloc-bowtie-visualize.svg)
-
-Tool to illustrate type inference or term evaluation (WIP).
++ [./bowtie-js](./bowtie-js): JavaScript transpiler
