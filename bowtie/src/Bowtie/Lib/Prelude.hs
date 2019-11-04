@@ -34,6 +34,7 @@ import Numeric.Natural as X (Natural)
 -- Local stuff:
 
 import Control.Monad.Except
+import Control.Monad.State.Class
 import GHC.Stack.Types (HasCallStack)
 import System.Directory (listDirectory)
 import System.Exit (exitFailure)
@@ -47,6 +48,22 @@ import qualified Data.List as List
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
 import qualified Prelude
+
+newtype Id
+  = Id Text
+  deriving stock (Eq, Ord, Show, Generic)
+  deriving newtype (Hashable)
+  deriving anyclass (NFData)
+
+-- | Note making this a field of @id@ since then it would
+-- be printed every time an @Id@ is shown.
+unId :: Id -> Text
+unId (Id t) =
+  t
+
+genVar :: MonadState Int m => m Id
+genVar =
+  state (\n -> (Id (show n), n + 1))
 
 {-# WARNING error "'error' remains in code" #-}
 error :: HasCallStack => [Char] -> a

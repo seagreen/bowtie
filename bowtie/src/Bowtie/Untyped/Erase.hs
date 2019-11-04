@@ -1,7 +1,6 @@
 module Bowtie.Untyped.Erase where
 
 import Bowtie.Core.Expr
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 import qualified Bowtie.Untyped.Expr as U

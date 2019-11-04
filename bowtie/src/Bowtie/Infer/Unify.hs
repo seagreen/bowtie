@@ -2,7 +2,6 @@ module Bowtie.Infer.Unify where
 
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 

@@ -1,7 +1,6 @@
 module Bowtie.Type.Kindcheck where
 
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme

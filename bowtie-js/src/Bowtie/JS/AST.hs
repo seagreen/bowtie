@@ -1,6 +1,5 @@
 module Bowtie.JS.AST where
 
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 -- h/t PureScript

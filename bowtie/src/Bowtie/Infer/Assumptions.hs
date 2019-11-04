@@ -1,6 +1,5 @@
 module Bowtie.Infer.Assumptions where
 
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Type.AST
 

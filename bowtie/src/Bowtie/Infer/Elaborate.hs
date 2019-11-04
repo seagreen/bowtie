@@ -3,7 +3,6 @@ module Bowtie.Infer.Elaborate where
 import Bowtie.Infer.Infer
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 import Control.Monad.State.Class

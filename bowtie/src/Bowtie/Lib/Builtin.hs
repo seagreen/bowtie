@@ -1,6 +1,6 @@
 module Bowtie.Lib.Builtin where
 
-import Bowtie.Lib.Id
+import Bowtie.Lib.Prelude
 
 int :: Id
 int =

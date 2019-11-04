@@ -5,7 +5,6 @@ module Bowtie.Surface.InferSpec where
 import Bowtie.Infer.Elaborate
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Infer.Infer
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme

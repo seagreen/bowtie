@@ -3,7 +3,6 @@ module Bowtie.Infer.BottomUp where
 import Bowtie.Infer.Assumptions
 import Bowtie.Infer.Constraints
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme

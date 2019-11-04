@@ -16,7 +16,6 @@ module Bowtie.Type.Parse
   , parseTest
   ) where
 
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude hiding (many, some)
 import Bowtie.Type.AST
 import Control.Applicative.Combinators.NonEmpty

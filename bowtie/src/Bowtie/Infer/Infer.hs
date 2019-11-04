@@ -7,7 +7,6 @@ import Bowtie.Infer.Constraints
 import Bowtie.Infer.Solve
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 import Control.Monad.Except

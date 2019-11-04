@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e7bc26b76c7c6decea4f8480aaf9046bf3bc39db02244bad3baad02ce95c1190
+-- hash: 06e4c7b376d5a49b162fc81cf1e96b8f72f6dea96f0d13be1c83b7a4ec6aaa40
 
 name:           bowtie
 version:        0.0.0
@@ -28,7 +28,6 @@ library
       Bowtie.Lib.Builtin
       Bowtie.Lib.Environment
       Bowtie.Lib.FreeVars
-      Bowtie.Lib.Id
       Bowtie.Lib.OrderedMap
       Bowtie.Lib.Prelude
       Bowtie.Lib.TypeScheme

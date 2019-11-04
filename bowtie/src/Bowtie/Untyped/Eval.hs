@@ -1,7 +1,6 @@
 module Bowtie.Untyped.Eval where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Untyped.Expr
 import Safe.Exact (zipExactMay)

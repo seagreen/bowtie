@@ -1,7 +1,6 @@
 module Bowtie.Type.AST where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 import qualified Data.Set as Set

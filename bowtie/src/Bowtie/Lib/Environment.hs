@@ -3,7 +3,6 @@
 module Bowtie.Lib.Environment where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 

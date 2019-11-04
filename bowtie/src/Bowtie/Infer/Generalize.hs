@@ -2,7 +2,6 @@ module Bowtie.Infer.Generalize where
 
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST

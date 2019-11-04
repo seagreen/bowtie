@@ -1,7 +1,6 @@
 module Bowtie.Infer.Constraints where
 
 import Bowtie.Infer.Substitution
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST

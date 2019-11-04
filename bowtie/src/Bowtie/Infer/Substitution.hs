@@ -1,7 +1,6 @@
 module Bowtie.Infer.Substitution where
 
 import Bowtie.Lib.Environment
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Surface.AST

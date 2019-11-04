@@ -5,7 +5,6 @@ module Bowtie.Surface.Desugar
   ) where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude hiding (all, rem)
 import Bowtie.Surface.AST

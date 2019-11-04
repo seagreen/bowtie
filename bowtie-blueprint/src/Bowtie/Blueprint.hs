@@ -1,6 +1,5 @@
 module Bowtie.Blueprint where
 
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 import qualified Bowtie.Type.AST as Type.AST

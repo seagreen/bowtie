@@ -11,7 +11,7 @@ module Test.Quoted.Expr
   , trimLeadingNewline
   ) where
 
-import Bowtie.Lib.Id
+import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 import Bowtie.Surface.Parse
 import Data.Data
@@ -19,7 +19,6 @@ import Data.Text (Text)
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 import Language.Haskell.TH.Syntax (lift)
-import Prelude
 
 import qualified Bowtie.Type.AST as TYP
 import qualified Data.Text as Text
@@ -35,9 +34,9 @@ quotedExpr =
     { quoteExp =
         liftDataWithText . dirtyParseExpr . Text.pack . trimLeadingNewline
 
-    , quotePat = \_ -> error "quotedExpr: quotePat not defined"
-    , quoteType = \_ -> error "quotedExpr: quoteType not defined"
-    , quoteDec  = \_ -> error "quotedExpr: quoteDec not defined"
+    , quotePat = \_ -> panic "quotedExpr: quotePat not defined"
+    , quoteType = \_ -> panic "quotedExpr: quoteType not defined"
+    , quoteDec  = \_ -> panic "quotedExpr: quoteDec not defined"
     }
 
 -- This and liftText from: https://stackoverflow.com/a/38182444

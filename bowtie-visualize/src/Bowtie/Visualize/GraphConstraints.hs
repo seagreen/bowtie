@@ -3,7 +3,6 @@
 module Bowtie.Visualize.GraphConstraints where
 
 import Bowtie.Infer.Constraints
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST

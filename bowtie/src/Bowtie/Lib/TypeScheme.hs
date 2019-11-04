@@ -1,7 +1,6 @@
 module Bowtie.Lib.TypeScheme where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 

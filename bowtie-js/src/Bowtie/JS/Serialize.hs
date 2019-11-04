@@ -6,7 +6,6 @@ module Bowtie.JS.Serialize
   ) where
 
 import Bowtie.JS.AST
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 
 import qualified Data.Text as Text

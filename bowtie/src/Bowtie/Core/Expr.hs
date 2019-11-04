@@ -1,7 +1,6 @@
 module Bowtie.Core.Expr where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Bowtie.Type.AST
 

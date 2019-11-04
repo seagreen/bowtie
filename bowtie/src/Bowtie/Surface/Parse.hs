@@ -10,7 +10,6 @@ module Bowtie.Surface.Parse
    , dirtyParseAST
    ) where
 
-import Bowtie.Lib.Id
 import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude hiding (many, some)
 import Bowtie.Surface.AST

@@ -1,7 +1,6 @@
 module Bowtie.Untyped.Expr where
 
 import Bowtie.Lib.FreeVars
-import Bowtie.Lib.Id
 import Bowtie.Lib.Prelude
 import Data.HashMap.Strict (HashMap)
 
