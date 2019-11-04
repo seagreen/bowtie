@@ -1,6 +1,5 @@
 module Bowtie.Interpret where
 
-import Bowtie.Infer.Infer (TypeError)
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
@@ -8,9 +7,9 @@ import Bowtie.Type.Kindcheck
 import Bowtie.Type.Parse (ParserErrorBundle)
 
 import qualified Bowtie.Core.Expr as Core
-import qualified Bowtie.Infer.Elaborate as Elaborate
 import qualified Bowtie.Surface.AST as Surface
 import qualified Bowtie.Surface.Desugar as Desugar
+import qualified Bowtie.Surface.Infer as Infer
 import qualified Bowtie.Surface.Parse as Surface.Parse
 import qualified Bowtie.Untyped.Erase as Erase
 import qualified Bowtie.Untyped.Eval as Eval
@@ -22,7 +21,7 @@ import qualified Text.Megaparsec as Mega
 data IError
   = ParseError ParserErrorBundle
   | NameClash Text
-  | TypeError TypeError
+  | TypeError Infer.TypeError
   deriving (Eq, Show)
 
 interpret :: Text -> Either IError Untyped.Expr
@@ -72,7 +71,7 @@ sourcesToCore libFiles appFile = do
 
   (_, _, explicitlyTypedExpr) <- Bifunctor.first
                                    TypeError
-                                   (Elaborate.elaborate env dsg)
+                                   (Infer.elaborate env dsg)
   pure (env, Desugar.desugar explicitlyTypedExpr)
 
 concatSource :: [AST] -> Either Text AST

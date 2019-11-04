@@ -4,11 +4,11 @@ module Bowtie.Visualize
   ) where
 
 import Bowtie.Infer.Constraints
-import Bowtie.Infer.Infer
 import Bowtie.Infer.Solve
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
+import Bowtie.Surface.Infer
 import Bowtie.Type.Kindcheck
 import Bowtie.Visualize.GraphConstraints
 import Control.Monad.Except

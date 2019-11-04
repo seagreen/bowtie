@@ -2,14 +2,13 @@
 
 module Bowtie.Surface.InferSpec where
 
-import Bowtie.Infer.Elaborate
 import Bowtie.Infer.Substitution
 import Bowtie.Lib.Environment
-import Bowtie.Infer.Infer
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Surface.AST
 import Bowtie.Surface.Desugar
+import Bowtie.Surface.Infer
 import Bowtie.Type.Kindcheck
 import Test.Hspec
 import Test.Shared

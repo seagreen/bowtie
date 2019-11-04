@@ -1,24 +1,8 @@
 module Bowtie.Infer.Elaborate where
 
-import Bowtie.Infer.Infer
-import Bowtie.Infer.Substitution
-import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
 import Control.Monad.State.Class
-import Control.Monad.Trans.State
-
-elaborate :: Environment -> Expr -> Either TypeError (Substitution, Type, Expr)
-elaborate env expr = do
-  let
-    freshExpr = evalState (freshenExpr expr) 10000000 -- TODO
-
-  case runInfer (inferType env freshExpr) of
-    Left e ->
-      Left e
-
-    Right (sub, typ) ->
-      pure (sub, typ, substExpr sub freshExpr)
 
 -- | Invariant: for every Lam in the returned expression,
 -- its second argument (an optional explicit type) will

@@ -4,7 +4,7 @@ cabal-version: 1.18
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 06e4c7b376d5a49b162fc81cf1e96b8f72f6dea96f0d13be1c83b7a4ec6aaa40
+-- hash: 759169e0b3d720cfa7430eb1ab6d01ec5fdc06ddb6a89a10789f6bb437f0b38e
 
 name:           bowtie
 version:        0.0.0
@@ -20,7 +20,6 @@ library
       Bowtie.Infer.Constraints
       Bowtie.Infer.Elaborate
       Bowtie.Infer.Generalize
-      Bowtie.Infer.Infer
       Bowtie.Infer.Solve
       Bowtie.Infer.Substitution
       Bowtie.Infer.Unify
@@ -33,6 +32,7 @@ library
       Bowtie.Lib.TypeScheme
       Bowtie.Surface.AST
       Bowtie.Surface.Desugar
+      Bowtie.Surface.Infer
       Bowtie.Surface.Parse
       Bowtie.Type.AST
       Bowtie.Type.Kindcheck

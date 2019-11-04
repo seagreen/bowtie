@@ -1,5 +1,5 @@
 -- | Based on <doc.md#HeerenHagePaper>
-module Bowtie.Infer.Infer where
+module Bowtie.Surface.Infer where
 
 import Bowtie.Infer.Assumptions (Assumptions)
 import Bowtie.Infer.BottomUp
@@ -14,8 +14,21 @@ import Control.Monad.State.Class
 import Control.Monad.Trans.State
 
 import qualified Bowtie.Infer.Assumptions as Assumptions
+import qualified Bowtie.Infer.Elaborate as Elaborate
 import qualified Bowtie.Lib.Environment as Environment
 import qualified Data.Set as Set
+
+elaborate :: Environment -> Expr -> Either TypeError (Substitution, Type, Expr)
+elaborate env expr = do
+  let
+    freshExpr = evalState (Elaborate.freshenExpr expr) 10000000 -- TODO
+
+  case runInfer (inferType env freshExpr) of
+    Left e ->
+      Left e
+
+    Right (sub, typ) ->
+      pure (sub, typ, substExpr sub freshExpr)
 
 data TypeError
   = SolveError SolveError
