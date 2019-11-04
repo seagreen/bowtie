@@ -35,7 +35,7 @@ spec = do
     it "1" $
       infer mempty (EInt 1) `shouldBe` Right (mempty, TConstructor (Id "Int"))
     it "abc" $
-      infer mempty (EText "abc") `shouldBe` Right (mempty, TConstructor (Id "Text"))
+      infer mempty (TextLiteral "abc") `shouldBe` Right (mempty, TConstructor (Id "Text"))
     it "Unit" $
       fmap snd (infer unitEnv (Construct (Id "Unit")))
         `shouldBe` Right (TConstructor (Id "Unit"))

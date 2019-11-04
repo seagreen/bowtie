@@ -57,7 +57,7 @@ substExpr sub expr =
     EInt _ ->
       expr
 
-    EText _ ->
+    TextLiteral _ ->
       expr
 
 substAlt :: Substitution -> Alt -> Alt

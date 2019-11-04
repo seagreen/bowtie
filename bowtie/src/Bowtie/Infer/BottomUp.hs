@@ -63,7 +63,7 @@ bottomUp env ms topExpr =
     EInt _ ->
       pure (mempty, mempty, TConstructor Builtin.int)
 
-    EText _ ->
+    TextLiteral _ ->
       pure (mempty, mempty, TConstructor Builtin.text)
 
 bottomUpLet

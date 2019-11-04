@@ -91,7 +91,7 @@ desugar topExpr =
     EInt n ->
       Core.EInt n
 
-    EText t ->
+    TextLiteral t ->
       desugarText t
 
 -- | See 'showIntBuiltin' for a similar function.

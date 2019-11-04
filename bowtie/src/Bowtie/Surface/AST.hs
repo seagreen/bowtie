@@ -38,7 +38,7 @@ data Expr
   | Case Expr [Alt]
 
   | EInt Integer
-  | EText Text
+  | TextLiteral Text
   deriving (Eq, Show)
 
 data Alt
@@ -71,7 +71,7 @@ instance FreeVars Expr where
       EInt _ ->
         mempty
 
-      EText _ ->
+      TextLiteral _ ->
         mempty
 
 instance FreeVars Alt where

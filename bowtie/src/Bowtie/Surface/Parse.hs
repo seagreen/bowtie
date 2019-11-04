@@ -244,13 +244,13 @@ intParser = do
 
 -- |
 -- >>> parseTest textParser "\"abc\""
--- EText "abc"
+-- TextLiteral "abc"
 textParser :: Parser Expr
 textParser = do
   _ <- single '"'
   t <- takeWhileP (Just "Text char") (/= '"')
   _ <- single '"'
-  pure (EText t)
+  pure (TextLiteral t)
 
 -- * Utils
 

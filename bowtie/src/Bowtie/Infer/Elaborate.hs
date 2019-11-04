@@ -47,7 +47,7 @@ freshenExpr expr =
     EInt _ ->
       pure expr
 
-    EText _ ->
+    TextLiteral _ ->
       pure expr
 
 freshenAlt :: forall m. MonadState Int m => Alt -> m Alt
