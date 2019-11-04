@@ -44,7 +44,7 @@ freshenExpr expr =
     Case caseExpr alts ->
       fmap Case (freshenExpr caseExpr) <*> for alts freshenAlt
 
-    EInt _ ->
+    IntLiteral _ ->
       pure expr
 
     TextLiteral _ ->

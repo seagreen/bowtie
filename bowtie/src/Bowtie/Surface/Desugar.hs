@@ -88,7 +88,7 @@ desugar topExpr =
       in
         Core.Case (desugar e) (fmap f matches)
 
-    EInt n ->
+    IntLiteral n ->
       Core.EInt n
 
     TextLiteral t ->

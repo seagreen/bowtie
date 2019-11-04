@@ -37,7 +37,7 @@ data Expr
   | Construct Id
   | Case Expr [Alt]
 
-  | EInt Integer
+  | IntLiteral Integer
   | TextLiteral Text
   deriving (Eq, Show)
 
@@ -68,7 +68,7 @@ instance FreeVars Expr where
       Case e alts ->
         freeVars e <> foldMap freeVars alts
 
-      EInt _ ->
+      IntLiteral _ ->
         mempty
 
       TextLiteral _ ->

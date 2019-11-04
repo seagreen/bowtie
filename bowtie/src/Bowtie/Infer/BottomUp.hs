@@ -60,7 +60,7 @@ bottomUp env ms topExpr =
     Case expr alts ->
       bottomUpCase env ms expr alts
 
-    EInt _ ->
+    IntLiteral _ ->
       pure (mempty, mempty, TConstructor Builtin.int)
 
     TextLiteral _ ->

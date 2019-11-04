@@ -76,7 +76,7 @@ entryParser =
 
 -- |
 -- >>> parseTest dParser "a : Int\na =\n  1"
--- (Id "a",EInt 1,TConstructor (Id "Int"))
+-- (Id "a",IntLiteral 1,TConstructor (Id "Int"))
 dParser :: Parser (Id, Expr, Type)
 dParser = do
   pos <- Lexer.indentLevel
@@ -90,7 +90,7 @@ dParser = do
 
 -- |
 -- >>> parseTest valDefParser "a =\n  1"
--- (Id "a",EInt 1)
+-- (Id "a",IntLiteral 1)
 valDefParser :: Parser (Id, Expr)
 valDefParser = do
   pos <- Lexer.indentLevel
@@ -130,7 +130,7 @@ lamParser = do
 
 -- |
 -- parseTest letParser "let\n  a = b\nin\n  a"
--- Case (Var (Id "a")) [Alt (Id "True") [] (EInt 1),Alt (Id "False") [] (EInt 2)]
+-- Case (Var (Id "a")) [Alt (Id "True") [] (IntLiteral 1),Alt (Id "False") [] (IntLiteral 2)]
 letParser :: Parser Expr
 letParser = do
   pos <- Lexer.indentLevel
@@ -161,7 +161,7 @@ letParser = do
 
 -- |
 -- >>> parseTest caseParser "case a of\n  True -> 1\n\n  False -> 2"
--- Case (Var (Id "a")) [Alt (Id "True") [] (EInt 1),Alt (Id "False") [] (EInt 2)]
+-- Case (Var (Id "a")) [Alt (Id "True") [] (IntLiteral 1),Alt (Id "False") [] (IntLiteral 2)]
 caseParser :: Parser Expr
 caseParser =
   Lexer.indentBlock spacesOrNewlines p
@@ -190,7 +190,7 @@ altParser = do
 
 -- |
 -- >>> parseTest listToAppParser "double 1"
--- App (Var (Id "double")) (EInt 1)
+-- App (Var (Id "double")) (IntLiteral 1)
 listToAppParser :: Parser Expr
 listToAppParser = do
   pos <- Lexer.indentLevel -- Could use 'lineFold' here
@@ -223,15 +223,15 @@ conParser =
 
 -- |
 -- >>> parseTest intParser "1"
--- EInt 1
+-- IntLiteral 1
 --
 -- >>> parseTest intParser "-1"
--- EInt (-1)
+-- IntLiteral (-1)
 intParser :: Parser Expr
 intParser = do
   mNegate <- optional (single '-')
   digits <- some (satisfy Char.isDigit)
-  pure (EInt (Prelude.read (f mNegate (NonEmpty.toList digits)))) -- TODO: read
+  pure (IntLiteral (Prelude.read (f mNegate (NonEmpty.toList digits)))) -- TODO: read
   where
     f :: Maybe Char -> [Char] -> [Char]
     f mNegate digits =

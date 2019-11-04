@@ -33,7 +33,7 @@ spec :: Spec
 spec = do
   describe "algorithm W" do
     it "1" $
-      infer mempty (EInt 1) `shouldBe` Right (mempty, TConstructor (Id "Int"))
+      infer mempty (IntLiteral 1) `shouldBe` Right (mempty, TConstructor (Id "Int"))
     it "abc" $
       infer mempty (TextLiteral "abc") `shouldBe` Right (mempty, TConstructor (Id "Text"))
     it "Unit" $

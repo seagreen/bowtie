@@ -54,7 +54,7 @@ substExpr sub expr =
     Case caseExpr alts ->
       Case (substExpr sub caseExpr) (fmap (substAlt sub) alts)
 
-    EInt _ ->
+    IntLiteral _ ->
       expr
 
     TextLiteral _ ->
