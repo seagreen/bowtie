@@ -2,7 +2,6 @@ module Bowtie.JS.Serialize
   ( serializeTop
   , serialize
   , serializeOperation
-  , experize
   ) where
 
 import Bowtie.JS.AST
@@ -35,16 +34,7 @@ serialize topAst =
       "const " <> serialize a1 <> " = " <> serialize a2 <> ";"
 
     Block asts ->
-      let
-        addReturn ys =
-          case reverse ys of
-            y:rest ->
-              reverse rest <> [Return y]
-
-            _ ->
-              ys
-      in
-        experize (Text.intercalate "\n" (fmap serialize (addReturn asts)))
+      Text.intercalate "\n" (fmap serialize asts)
 
     Return ast ->
       "return " <> serialize ast
@@ -52,22 +42,23 @@ serialize topAst =
     Array asts ->
       "[" <> Text.intercalate ", " (fmap serialize asts) <> "]"
 
-    Case ast alts ->
-      let
-        mkAssign :: (Natural, Id) -> Text
-        mkAssign (n, id) =
-          "const " <> serializeId id <> " = $1[" <> show n <> "];\n"
+    IndexArray ast index ->
+      serialize ast <> "[" <> show index <> "]"
 
-        f :: Alt -> Text
-        f (Alt id bindings expr) =
-           -- unId not serializeId because it's ["Unit"] not [Unit].
-          "if ($1[0] === \"" <> unId id <> "\") {"
-            <> foldMap mkAssign (zip [1..] bindings)
-            <> "return " <> serialize expr <> "} else "
-      in
-        "(() => { const $1 = " <> serialize ast <> ";\n"
-          <> foldMap f alts
-          <> " {throw \"no match\";} })()"
+    IfThen a1 a2 ->
+      "if (" <> serialize a1 <> ") { " <> serialize a2 <> "}"
+
+    Else ast ->
+      " else { " <> serialize ast <> " }"
+
+    Throw t ->
+      "throw \"" <> t <> "\""
+
+    Equal a1 a2 ->
+      serialize a1 <> " === " <> serialize a2
+
+    LambdaUnit ast ->
+      "(() => { " <> serialize ast <> "})()"
 
     JSInt n ->
       show n
@@ -77,10 +68,6 @@ serialize topAst =
 
     JSOp op ->
       serializeOperation op
-
-experize :: Text -> Text
-experize t =
-  "(() => { " <> t <> "})()"
 
 serializeOperation :: Operation -> Text
 serializeOperation op =
@@ -97,8 +84,8 @@ serializeOperation op =
     ShowInt ast ->
       "$unicodeListizeBuiltin(" <> serialize ast <> ".toString())"
 
-    Panic expr -> -- Only works on Text
-      experize ("throw " <> serialize expr)
+    Panic expr -> -- Will only be used with Text
+      "(() => { throw " <> serialize expr <> "})()"
 
 serializeId :: Id -> Text
 serializeId (Id t) =

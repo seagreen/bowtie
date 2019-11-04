@@ -29,10 +29,11 @@ const _Na = ["Na"];
 const _Unit = ["Unit"];
 const _Ya = ["Ya"];
 const _foo = _b => _n => _Unit;
-const _result = (() => { const $1 = _BoolInt(_Ya)(1);
-if ($1[0] === "BoolInt") {const _b = $1[1];
-const _n = $1[2];
-return _foo(_b)(_n)} else  {throw "no match";} })();
+const _result = (() => { const _$1 = _BoolInt(_Ya)(1);
+if (_$1[0] === "BoolInt") { const _b = _$1[1];
+const _n = _$1[2];
+return _foo(_b)(_n)}
+ else { throw "no match" }})();
 
 console.log(_result);
 */

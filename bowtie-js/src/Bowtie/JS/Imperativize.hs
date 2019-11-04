@@ -1,4 +1,6 @@
-module Bowtie.JS.Imperativize where
+module Bowtie.JS.Imperativize
+  ( makeImp
+  ) where
 
 import Bowtie.JS.AST
 import Bowtie.Lib.Environment
@@ -47,26 +49,45 @@ coreToImp topExpr =
         f (id, (expr, _)) =
           Assignment (Var id) (coreToImp expr)
       in
-        Block
-          (  fmap f (hashmapToSortedList bindings)
-          <> [coreToImp body] -- PERFORMANCE
-          )
+        LambdaUnit
+          (Block
+            (addReturn
+              (  fmap f (hashmapToSortedList bindings)
+              <> [coreToImp body] -- PERFORMANCE
+              )))
 
     Core.Construct id ->
       Var id
 
     Core.Case expr alts ->
-      Case (coreToImp expr) (fmap altToImp alts)
+      let
+        mkAssign :: (Natural, Id) -> AST
+        mkAssign (n, id) =
+          Assignment (Var id) (IndexArray (Var (Id "$1")) n)
+
+        altToImp :: Core.Alt -> AST
+        altToImp (Core.Alt id args body) =
+          IfThen
+            (Equal
+              (IndexArray (Var (Id "$1")) 0)
+              (conToString id))
+            (Block $ addReturn
+              (  fmap mkAssign (zip [1..] args)
+              <> [coreToImp body] -- PERFORMANCE
+              ))
+      in
+        LambdaUnit
+          (Block
+            (  Assignment (Var (Id "$1")) (coreToImp expr)
+             : fmap altToImp alts
+            <> [Else (Throw "no match")]
+            ))
 
     Core.EInt n ->
       JSInt n
 
     Core.EOp op ->
       JSOp (coreOperationToImp op)
-
-altToImp :: Core.Alt -> Alt
-altToImp (Core.Alt id bindings body) =
-  Alt id bindings (coreToImp body)
 
 coreOperationToImp :: Core.Operation -> JS.Operation
 coreOperationToImp op =
@@ -86,17 +107,17 @@ coreOperationToImp op =
     Core.Panic expr ->
       Panic (coreToImp expr)
 
+-- eg ["Maybe", 5], not [Maybe, 5]
+conToString :: Id -> JS.AST
+conToString =
+  JSString . unId
+
 conTypeToFunction :: (Id, TypeScheme) -> JS.AST
 conTypeToFunction (id, TypeScheme _ tsType) =
   Assignment
     (Var id)
-    (addLambdas args (Array (conAsString : fmap Var args)))
+    (addLambdas args (Array (conToString id : fmap Var args)))
   where
-    -- eg ["Maybe", 5], not [Maybe, 5]
-    conAsString :: JS.AST
-    conAsString =
-      JSString (unId id)
-
     addLambdas :: [Id] -> JS.AST -> JS.AST
     addLambdas [] ast = ast
     addLambdas (y:ys) ast = Lam y (addLambdas ys ast)
@@ -119,6 +140,15 @@ conTypeToFunction (id, TypeScheme _ tsType) =
 
         TypeApp _ _ -> -- eg List a
           []
+
+addReturn :: [JS.AST] -> [JS.AST]
+addReturn ys =
+  case reverse ys of
+    y:rest ->
+      reverse rest <> [Return y] -- PERFORMANCE
+
+    _ ->
+      ys
 
 -- | I initially though packageUp's purpose would be to make sure
 -- it's being passed a full program, which should be a Let,

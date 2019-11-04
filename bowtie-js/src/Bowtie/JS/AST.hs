@@ -13,7 +13,12 @@ data AST
   | Return AST
 
   | Array [AST]
-  | Case AST [Alt]
+  | IndexArray AST Natural
+  | IfThen AST AST
+  | Else AST
+  | Throw Text
+  | Equal AST AST
+  | LambdaUnit AST -- ^ @(() => { " <> ast <> "})()@
 
   | JSInt Integer
   | JSString Text

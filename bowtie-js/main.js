@@ -68,13 +68,13 @@ const _Unit = ["Unit"];
 const _wCodepoint = 119;
 const _updateStatus = _m => _status =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _c = $1[3];
-      const _d = $1[4];
-      const _oldStatus = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _c = _$1[3];
+      const _d = _$1[4];
+      const _oldStatus = _$1[5];
       return _Model(_a)(_b)(_c)(_d)(_status);
     } else {
       throw "no match";
@@ -82,12 +82,13 @@ const _updateStatus = _m => _status =>
   })();
 const _tail = _xs =>
   (() => {
-    const $1 = _xs;
-    if ($1[0] === "Cons") {
-      const _x = $1[1];
-      const _rest = $1[2];
+    const _$1 = _xs;
+    if (_$1[0] === "Cons") {
+      const _x = _$1[1];
+      const _rest = _$1[2];
       return _rest;
-    } else if ($1[0] === "Nil") {
+    }
+    if (_$1[0] === "Nil") {
       return _Nil;
     } else {
       throw "no match";
@@ -95,13 +96,13 @@ const _tail = _xs =>
   })();
 const _setThrust = _m => _thrust =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _c = $1[3];
-      const _oldThrust = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _c = _$1[3];
+      const _oldThrust = _$1[4];
+      const _d = _$1[5];
       return _Model(_a)(_b)(_c)(_thrust)(_d);
     } else {
       throw "no match";
@@ -113,12 +114,13 @@ const _panic = _a =>
   })();
 const _listMap = _f => _xs =>
   (() => {
-    const $1 = _xs;
-    if ($1[0] === "Cons") {
-      const _x = $1[1];
-      const _rest = $1[2];
+    const _$1 = _xs;
+    if (_$1[0] === "Cons") {
+      const _x = _$1[1];
+      const _rest = _$1[2];
       return _Cons(_f(_x))(_listMap(_f)(_rest));
-    } else if ($1[0] === "Nil") {
+    }
+    if (_$1[0] === "Nil") {
       return _Nil;
     } else {
       throw "no match";
@@ -126,12 +128,13 @@ const _listMap = _f => _xs =>
   })();
 const _listAppend = _xs => _ys =>
   (() => {
-    const $1 = _xs;
-    if ($1[0] === "Nil") {
+    const _$1 = _xs;
+    if (_$1[0] === "Nil") {
       return _ys;
-    } else if ($1[0] === "Cons") {
-      const _x = $1[1];
-      const _rest = $1[2];
+    }
+    if (_$1[0] === "Cons") {
+      const _x = _$1[1];
+      const _rest = _$1[2];
       return _Cons(_x)(_listAppend(_rest)(_ys));
     } else {
       throw "no match";
@@ -139,13 +142,13 @@ const _listAppend = _xs => _ys =>
   })();
 const _textAppend = _t1 => _t2 =>
   (() => {
-    const $1 = _t1;
-    if ($1[0] === "Unicode") {
-      const _a = $1[1];
+    const _$1 = _t1;
+    if (_$1[0] === "Unicode") {
+      const _a = _$1[1];
       return (() => {
-        const $1 = _t2;
-        if ($1[0] === "Unicode") {
-          const _b = $1[1];
+        const _$1 = _t2;
+        if (_$1[0] === "Unicode") {
+          const _b = _$1[1];
           return _Unicode(_listAppend(_a)(_b));
         } else {
           throw "no match";
@@ -207,12 +210,13 @@ const _initialState = _Model(0)(0)(100)(_False)(_Flying);
 const _identity = _a => _a;
 const _head = _xs =>
   (() => {
-    const $1 = _xs;
-    if ($1[0] === "Cons") {
-      const _x = $1[1];
-      const _rest = $1[2];
+    const _$1 = _xs;
+    if (_$1[0] === "Cons") {
+      const _x = _$1[1];
+      const _rest = _$1[2];
       return _Just(_x);
-    } else if ($1[0] === "Nil") {
+    }
+    if (_$1[0] === "Nil") {
       return _Nothing;
     } else {
       throw "no match";
@@ -220,13 +224,13 @@ const _head = _xs =>
   })();
 const _getY = _m =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _y = $1[1];
-      const _a = $1[2];
-      const _b = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _y = _$1[1];
+      const _a = _$1[2];
+      const _b = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _y;
     } else {
       throw "no match";
@@ -234,13 +238,13 @@ const _getY = _m =>
   })();
 const _getVelocity = _m =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _velocity = $1[2];
-      const _b = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _velocity = _$1[2];
+      const _b = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _velocity;
     } else {
       throw "no match";
@@ -248,13 +252,13 @@ const _getVelocity = _m =>
   })();
 const _getThrust = _m =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _c = $1[3];
-      const _isThrustOn = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _c = _$1[3];
+      const _isThrustOn = _$1[4];
+      const _d = _$1[5];
       return _isThrustOn;
     } else {
       throw "no match";
@@ -262,13 +266,13 @@ const _getThrust = _m =>
   })();
 const _getStatus = _m =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _c = $1[3];
-      const _d = $1[4];
-      const _status = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _c = _$1[3];
+      const _d = _$1[4];
+      const _status = _$1[5];
       return _status;
     } else {
       throw "no match";
@@ -276,13 +280,13 @@ const _getStatus = _m =>
   })();
 const _getFuel = _m =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _fuel = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _fuel = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _fuel;
     } else {
       throw "no match";
@@ -292,10 +296,11 @@ const _emptyPicture = _Pictures(_Nil);
 const _lem = _isThrusting =>
   (() => {
     const _thrust = (() => {
-      const $1 = _isThrusting;
-      if ($1[0] === "False") {
+      const _$1 = _isThrusting;
+      if (_$1[0] === "False") {
         return _emptyPicture;
-      } else if ($1[0] === "True") {
+      }
+      if (_$1[0] === "True") {
         return _viewThrust;
       } else {
         throw "no match";
@@ -323,12 +328,14 @@ const _crashSite = (() => {
 })();
 const _showLem = _m =>
   (() => {
-    const $1 = _getStatus(_m);
-    if ($1[0] === "Flying") {
+    const _$1 = _getStatus(_m);
+    if (_$1[0] === "Flying") {
       return _lem(_getThrust(_m));
-    } else if ($1[0] === "Landed") {
+    }
+    if (_$1[0] === "Landed") {
       return _lem(_getThrust(_m));
-    } else if ($1[0] === "Destroyed") {
+    }
+    if (_$1[0] === "Destroyed") {
       return _crashSite;
     } else {
       throw "no match";
@@ -338,12 +345,14 @@ const _builtin = _panic;
 const _compare = _a => _b => $compareBuiltin(_a, _b);
 const _equal = _a => _b =>
   (() => {
-    const $1 = _compare(_a)(_b);
-    if ($1[0] === "LessThan") {
+    const _$1 = _compare(_a)(_b);
+    if (_$1[0] === "LessThan") {
       return _False;
-    } else if ($1[0] === "Equal") {
+    }
+    if (_$1[0] === "Equal") {
       return _True;
-    } else if ($1[0] === "GreaterThan") {
+    }
+    if (_$1[0] === "GreaterThan") {
       return _False;
     } else {
       throw "no match";
@@ -352,10 +361,10 @@ const _equal = _a => _b =>
 const _multiply = _a => _b => _a * _b;
 const _multPoint = _p => _n =>
   (() => {
-    const $1 = _p;
-    if ($1[0] === "Point") {
-      const _x = $1[1];
-      const _y = $1[2];
+    const _$1 = _p;
+    if (_$1[0] === "Point") {
+      const _x = _$1[1];
+      const _y = _$1[2];
       return _Point(_multiply(_x)(_n))(_multiply(_y)(_n));
     } else {
       throw "no match";
@@ -363,21 +372,24 @@ const _multPoint = _p => _n =>
   })();
 const _scale = _n => _pic =>
   (() => {
-    const $1 = _pic;
-    if ($1[0] === "Line") {
-      const _p1 = $1[1];
-      const _p2 = $1[2];
+    const _$1 = _pic;
+    if (_$1[0] === "Line") {
+      const _p1 = _$1[1];
+      const _p2 = _$1[2];
       return _Line(_multPoint(_p1)(_n))(_multPoint(_p2)(_n));
-    } else if ($1[0] === "Text") {
-      const _t = $1[1];
+    }
+    if (_$1[0] === "Text") {
+      const _t = _$1[1];
       return _pic;
-    } else if ($1[0] === "Translate") {
-      const _x = $1[1];
-      const _y = $1[2];
-      const _p = $1[3];
+    }
+    if (_$1[0] === "Translate") {
+      const _x = _$1[1];
+      const _y = _$1[2];
+      const _p = _$1[3];
       return _pic;
-    } else if ($1[0] === "Pictures") {
-      const _pics = $1[1];
+    }
+    if (_$1[0] === "Pictures") {
+      const _pics = _$1[1];
       return _Pictures(_listMap(_scale(_n))(_pics));
     } else {
       throw "no match";
@@ -387,20 +399,24 @@ const _negate = _n => _multiply(_n)(-1);
 const _plus = _a => _b => _a + _b;
 const _bumpStatus = _m =>
   (() => {
-    const $1 = _compare(_getY(_m))(_plus(800)(-15));
-    if ($1[0] === "LessThan") {
+    const _$1 = _compare(_getY(_m))(_plus(800)(-15));
+    if (_$1[0] === "LessThan") {
       return _m;
-    } else if ($1[0] === "Equal") {
+    }
+    if (_$1[0] === "Equal") {
       return _m;
-    } else if ($1[0] === "GreaterThan") {
+    }
+    if (_$1[0] === "GreaterThan") {
       return (() => {
         const _modelB = (() => {
-          const $1 = _compare(_getVelocity(_m))(-10);
-          if ($1[0] === "LessThan") {
+          const _$1 = _compare(_getVelocity(_m))(-10);
+          if (_$1[0] === "LessThan") {
             return _updateStatus(_m)(_Destroyed);
-          } else if ($1[0] === "Equal") {
+          }
+          if (_$1[0] === "Equal") {
             return _updateStatus(_m)(_Landed);
-          } else if ($1[0] === "GreaterThan") {
+          }
+          if (_$1[0] === "GreaterThan") {
             return _updateStatus(_m)(_Landed);
           } else {
             throw "no match";
@@ -414,12 +430,13 @@ const _bumpStatus = _m =>
   })();
 const _length = _xs =>
   (() => {
-    const $1 = _xs;
-    if ($1[0] === "Cons") {
-      const _x = $1[1];
-      const _rest = $1[2];
+    const _$1 = _xs;
+    if (_$1[0] === "Cons") {
+      const _x = _$1[1];
+      const _rest = _$1[2];
       return _plus(1)(_length(_rest));
-    } else if ($1[0] === "Nil") {
+    }
+    if (_$1[0] === "Nil") {
       return 0;
     } else {
       throw "no match";
@@ -427,13 +444,13 @@ const _length = _xs =>
   })();
 const _updateFuel = _m => _n =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _b = $1[2];
-      const _fuel = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _b = _$1[2];
+      const _fuel = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _Model(_a)(_b)(_plus(_n)(_fuel))(_c)(_d);
     } else {
       throw "no match";
@@ -441,13 +458,13 @@ const _updateFuel = _m => _n =>
   })();
 const _updateVelocity = _m => _n =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _a = $1[1];
-      const _velocity = $1[2];
-      const _b = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _a = _$1[1];
+      const _velocity = _$1[2];
+      const _b = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _Model(_a)(_plus(_velocity)(_n))(_b)(_c)(_d);
     } else {
       throw "no match";
@@ -455,13 +472,13 @@ const _updateVelocity = _m => _n =>
   })();
 const _updateY = _m => _n =>
   (() => {
-    const $1 = _m;
-    if ($1[0] === "Model") {
-      const _y = $1[1];
-      const _a = $1[2];
-      const _b = $1[3];
-      const _c = $1[4];
-      const _d = $1[5];
+    const _$1 = _m;
+    if (_$1[0] === "Model") {
+      const _y = _$1[1];
+      const _a = _$1[2];
+      const _b = _$1[3];
+      const _c = _$1[4];
+      const _d = _$1[5];
       return _Model(_plus(_y)(_n))(_a)(_b)(_c)(_d);
     } else {
       throw "no match";
@@ -470,28 +487,31 @@ const _updateY = _m => _n =>
 const _bumpPosition = _m => _updateY(_m)(_negate(_getVelocity(_m)));
 const _update = _input => _m =>
   (() => {
-    const $1 = _getStatus(_m);
-    if ($1[0] === "Flying") {
+    const _$1 = _getStatus(_m);
+    if (_$1[0] === "Flying") {
       return (() => {
-        const $1 = _input;
-        if ($1[0] === "Tick") {
+        const _$1 = _input;
+        if (_$1[0] === "Tick") {
           return (() => {
             const _modelB = (() => {
-              const $1 = _getThrust(_m);
-              if ($1[0] === "True") {
+              const _$1 = _getThrust(_m);
+              if (_$1[0] === "True") {
                 return (() => {
-                  const $1 = _compare(_getFuel(_m))(0);
-                  if ($1[0] === "LessThan") {
+                  const _$1 = _compare(_getFuel(_m))(0);
+                  if (_$1[0] === "LessThan") {
                     return _updateVelocity(_setThrust(_m)(_False))(-1);
-                  } else if ($1[0] === "Equal") {
+                  }
+                  if (_$1[0] === "Equal") {
                     return _updateVelocity(_setThrust(_m)(_False))(-1);
-                  } else if ($1[0] === "GreaterThan") {
+                  }
+                  if (_$1[0] === "GreaterThan") {
                     return _updateFuel(_updateVelocity(_m)(1))(-1);
                   } else {
                     throw "no match";
                   }
                 })();
-              } else if ($1[0] === "False") {
+              }
+              if (_$1[0] === "False") {
                 return _updateVelocity(_m)(-1);
               } else {
                 throw "no match";
@@ -499,19 +519,23 @@ const _update = _input => _m =>
             })();
             return _bumpStatus(_bumpPosition(_modelB));
           })();
-        } else if ($1[0] === "KeyUp") {
-          const _c = $1[1];
+        }
+        if (_$1[0] === "KeyUp") {
+          const _c = _$1[1];
           return _setThrust(_m)(_False);
-        } else if ($1[0] === "KeyDown") {
-          const _c = $1[1];
+        }
+        if (_$1[0] === "KeyDown") {
+          const _c = _$1[1];
           return _setThrust(_m)(_True);
         } else {
           throw "no match";
         }
       })();
-    } else if ($1[0] === "Landed") {
+    }
+    if (_$1[0] === "Landed") {
       return _m;
-    } else if ($1[0] === "Destroyed") {
+    }
+    if (_$1[0] === "Destroyed") {
       return _m;
     } else {
       throw "no match";

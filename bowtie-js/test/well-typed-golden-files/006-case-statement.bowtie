@@ -26,8 +26,10 @@ function $compareBuiltin(a, b) {
 
 const _False = ["False"];
 const _True = ["True"];
-const _result = (() => { const $1 = _True;
-if ($1[0] === "False") {return 0} else if ($1[0] === "True") {return 1} else  {throw "no match";} })();
+const _result = (() => { const _$1 = _True;
+if (_$1[0] === "False") { return 0}
+if (_$1[0] === "True") { return 1}
+ else { throw "no match" }})();
 
 console.log(_result);
 */

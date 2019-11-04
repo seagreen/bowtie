@@ -27,13 +27,17 @@ function $compareBuiltin(a, b) {
 const _Cons = _arg1 => _arg2 => ["Cons", _arg1, _arg2];
 const _Nil = ["Nil"];
 const _Unit = ["Unit"];
-const _result = (() => { const $1 = _Cons(1)(_Nil);
-if ($1[0] === "Cons") {const _n = $1[1];
-const _rest = $1[2];
-return _n} else if ($1[0] === "Nil") {return (() => { const $1 = _Cons(_Unit)(_Nil);
-if ($1[0] === "Cons") {const _u = $1[1];
-const _rest = $1[2];
-return 2} else if ($1[0] === "Nil") {return 3} else  {throw "no match";} })()} else  {throw "no match";} })();
+const _result = (() => { const _$1 = _Cons(1)(_Nil);
+if (_$1[0] === "Cons") { const _n = _$1[1];
+const _rest = _$1[2];
+return _n}
+if (_$1[0] === "Nil") { return (() => { const _$1 = _Cons(_Unit)(_Nil);
+if (_$1[0] === "Cons") { const _u = _$1[1];
+const _rest = _$1[2];
+return 2}
+if (_$1[0] === "Nil") { return 3}
+ else { throw "no match" }})()}
+ else { throw "no match" }})();
 
 console.log(_result);
 */

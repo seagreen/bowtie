@@ -26,8 +26,9 @@ function $compareBuiltin(a, b) {
 
 const _Unit = ["Unit"];
 const _identity = _a => _a;
-const _result = (() => { const $1 = _identity(_Unit);
-if ($1[0] === "Unit") {return _identity(0)} else  {throw "no match";} })();
+const _result = (() => { const _$1 = _identity(_Unit);
+if (_$1[0] === "Unit") { return _identity(0)}
+ else { throw "no match" }})();
 
 console.log(_result);
 */
