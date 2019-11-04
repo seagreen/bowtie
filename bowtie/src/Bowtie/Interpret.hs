@@ -63,7 +63,6 @@ interpretImpl
 interpretImpl libFiles appFile = do
 
   -- Parse
-
   let
     parse :: (FilePath, Text) -> Either IError AST
     parse =
@@ -72,17 +71,16 @@ interpretImpl libFiles appFile = do
   libPrograms <- for (hashmapToSortedList libFiles) parse
   appProgram <- parse appFile
 
-  -- Combine
-
   ast <- Bifunctor.first
            NameClash
            (concatSource (libPrograms <> [appProgram])) -- PERFORMANCE
 
-  -- Kindcheck and infer
+  pure (ast, inferAndEval ast)
+  where
+    inferAndEval :: AST -> Either IError (Environment, Core.Expr, Untyped.Expr)
+    inferAndEval ast = do
 
-  let
-    res :: Either IError (Environment, Core.Expr, Untyped.Expr)
-    res = do
+      -- Kindcheck and infer
       let
         env :: Environment
         env =
@@ -97,7 +95,6 @@ interpretImpl libFiles appFile = do
                                        (Infer.elaborate env dsg)
 
       -- Desugar and erase
-
       let
         core :: Core.Expr
         core =
@@ -108,15 +105,12 @@ interpretImpl libFiles appFile = do
           Erase.erase core
 
       -- Eval
-
       case Eval.eval mempty untyped of
         Left e ->
           panic ("Evaluating failed (this should never happen): " <> show e)
 
         Right val ->
           pure (env, core, val)
-
-  pure (ast, res)
 
 -- | For use by tests or other packages.
 sourcesToAST :: HashMap FilePath Text -> (FilePath, Text) -> Either IError AST
