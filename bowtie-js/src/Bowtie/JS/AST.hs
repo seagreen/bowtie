@@ -25,10 +25,6 @@ data AST
   | JSOp Operation
   deriving (Eq, Show)
 
-data Alt
-  = Alt Id [Id] AST
-  deriving (Eq, Show)
-
 data Operation
   = Compare AST AST
   | Plus AST AST -- ^ Only works on Ints
