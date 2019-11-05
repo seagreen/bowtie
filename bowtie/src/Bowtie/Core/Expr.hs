@@ -9,18 +9,28 @@ import qualified Data.Set as Set
 
 data Expr
   = Var Id
-  | Lam Id Type Expr
+  | Lam Id Type Expr -- ^ @Type@ is the type of the argument, not the @Expr@
   | App Expr Expr
 
   | Let (HashMap Id (Expr, Type)) Expr
 
-  | Construct Id
+  | Construct Id -- ^ E.g. @Just@
   | Case Expr [Alt]
 
   | PrimInt Integer
   | PrimOp Operation
   deriving (Eq, Show)
 
+-- | For example:
+--
+-- > Just x -> plus x 1
+--
+-- is represented as:
+--
+-- > Alt
+-- >   (Id "Just")
+-- >   [Id "x"]
+-- >   (PrimOp (Plus (Id "x") (PrimInt 1)))
 data Alt
   = Alt Id [Id] Expr
   deriving (Eq, Show)
