@@ -19,12 +19,12 @@ packages:
   original:
     hackage: graphviz-2999.20.0.3
 - completed:
-    hackage: megaparsec-7.0.5@sha256:45e1f1348fab2783646fdb4d9e6097568981a740951c7356d36d794e2baba305,3902
+    hackage: megaparsec-8.0.0@sha256:362f85e243ecbcb550e1de6e5c74ba5a50c09edaa1208c99bc5b9fd242227fc6,3808
     pantry-tree:
-      size: 1428
-      sha256: 1f8baf6e07326f8c8a2dd31de6b2860427f158b0892c52ba5fe9ffeb6cd3bf7f
+      size: 1446
+      sha256: 955117c00a86970f2d0c215f33cf5293b16589c04678a0a790c03368ab6fd0aa
   original:
-    hackage: megaparsec-7.0.5
+    hackage: megaparsec-8.0.0
 - completed:
     hackage: writer-cps-mtl-0.1.1.6@sha256:ec9c2dff8f201600f1f49d89085a4b5cbd2330e1c3d90f31a5bd133f017a3a90,1543
     pantry-tree:
