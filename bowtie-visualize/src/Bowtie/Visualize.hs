@@ -66,10 +66,12 @@ solutionSteps :: (MonadState Int m, MonadError SolveError m) => Constraints -> m
 solutionSteps cs = do
   case next cs of
     Nothing ->
-      if Constraints.isEmpty cs then
-        pure mempty
-      else
-        throwError SolveStuck
+      if Constraints.isEmpty cs
+        then
+          pure mempty
+
+        else
+          throwError SolveStuck
 
     Just (c, rest) -> do
       (_sub, rest2) <- mapError SolveUnifyError (solveConstraint c rest)

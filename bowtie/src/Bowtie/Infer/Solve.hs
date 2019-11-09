@@ -21,10 +21,12 @@ solve :: (MonadState Int m, MonadError SolveError m) => Constraints -> m Substit
 solve cs = do
   case next cs of
     Nothing ->
-      if Constraints.isEmpty cs then
-        pure mempty
-      else
-        throwError SolveStuck
+      if Constraints.isEmpty cs
+        then
+          pure mempty
+
+        else
+          throwError SolveStuck
 
     Just (c, rest) -> do
       (sub, rest2) <- mapError SolveUnifyError (solveConstraint c rest)
