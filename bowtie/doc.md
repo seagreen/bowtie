@@ -2,7 +2,7 @@
 
 *Algorithm W Step by Step*
 
-Martin Grabmüller (2005)
+Martin Grabmüller (2005, BSD3 licensed)
 
 This is on Algotithm W, not the HeerenHage algorithm, but parts of it were still very useful.
 
