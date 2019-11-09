@@ -67,9 +67,10 @@ gatherConstraints env expr = do
     remaining :: Set Id
     remaining =
       Set.difference (Assumptions.keys a) (Environment.keys env)
-  if Set.null remaining
-    then pure ()
-    else throwError (AssumptionsRemain a)
+  if Set.null remaining then
+    pure ()
+  else
+    throwError (AssumptionsRemain a)
 
   pure (c <> explicitConstraintOnSet env a, t)
 

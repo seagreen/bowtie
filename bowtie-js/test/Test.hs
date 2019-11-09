@@ -14,7 +14,7 @@ import qualified Data.Text.IO as TIO
 
 main :: IO ()
 main =
-  hspec $ do
+  hspec do
     describe
       "well-typed-examples"
       (for_ Bowtie.Example.wellTyped runWellTyped)
@@ -25,7 +25,7 @@ main =
 
 runWellTyped :: (FilePath, Text) -> Spec
 runWellTyped (name, src) =
-  it name $ do
+  it name do
     js <- case transpile src of
             Left e ->
               exitWithError (prettyError e)
@@ -39,7 +39,7 @@ runWellTyped (name, src) =
 
 testApps :: Spec
 testApps =
-  it "lunar-lander" $ do
+  it "lunar-lander" do
     appSource <- TIO.readFile "../example-app/lunar-lander.bowtie"
     libFiles <- readDirectoryFiles "../example-lib" -- TODO: wasted work
     -- TODO: get rid of ..

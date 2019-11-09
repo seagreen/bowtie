@@ -18,17 +18,17 @@ main :: IO ()
 main = do
   blueprintExamples <- getBlueprintExamples
 
-  hspec $ do
+  hspec do
     describe "blueprint" $
       for_ blueprintExamples g
 
   where
     g :: FilePath -> Spec
     g path =
-      it path $ do
+      it path do
         src <- TIO.readFile (dir </> path)
         case blueprint src of
-          Left e -> do
+          Left e ->
             expectationFailure (Text.unpack e)
 
           Right _ ->

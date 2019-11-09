@@ -14,41 +14,35 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
 import qualified Text.Megaparsec as Mega
 
-dir :: FilePath
-dir =
-  "example-app"
-
 main :: IO ()
 main = do
-  -- hack, because changing dir to "../app" makes listDirectory fail.
-  withCurrentDirectory ".." do
-    appExamples <- (fmap.fmap) (\p -> dir </> p) getAppExamples
-    hspec do
-      describe
-        "valid-syntax-examples"
-        (for_ Bowtie.Example.validSyntax run)
+  appExamples <- getAppExamples
+  hspec do
+    describe
+      "valid-syntax-examples"
+      (for_ Bowtie.Example.validSyntax run)
 
-      describe
-        "invalid-syntax-examples"
-        (for_ Bowtie.Example.invalidSyntax runInvalidSyntax)
+    describe
+      "invalid-syntax-examples"
+      (for_ Bowtie.Example.invalidSyntax runInvalidSyntax)
 
-      describe
-        "well-typed-examples"
-        (for_ Bowtie.Example.wellTyped run)
+    describe
+      "well-typed-examples"
+      (for_ Bowtie.Example.wellTyped run)
 
-      describe
-        "ill-typed-examples"
-        (for_ Bowtie.Example.illTyped runIllTyped)
+    describe
+      "ill-typed-examples"
+      (for_ Bowtie.Example.illTyped runIllTyped)
 
-      Bowtie.Surface.InferSpec.spec
+    Bowtie.Surface.InferSpec.spec
 
-      describe "example-app" $
-        for_ appExamples f
+    describe "example-app" $
+      for_ appExamples f
   where
     f :: FilePath -> Spec
     f path =
       it path do
-        libFiles <- readDirectoryFiles "example-lib" -- TODO: wasted work
+        libFiles <- readDirectoryFiles "../example-lib" -- TODO: wasted work
         appSource <- TIO.readFile path
         case Interpret.interpretProgram libFiles (path, appSource) of
           Left e ->
@@ -67,7 +61,7 @@ runInvalidSyntax (name, src) =
     case Surface.Parse.parse name src of
       Left e ->
         TIO.writeFile
-          ("bowtie" </> "test" </> "invalid-syntax-examples" </> name)
+          ("test" </> "invalid-syntax-examples" </> name)
           (Text.pack (Mega.errorBundlePretty e))
 
       Right _ ->
@@ -89,7 +83,7 @@ runIllTyped (name, src) =
 
           Interpret.TypeError e ->
             TIO.writeFile
-              ("bowtie" </> "test" </> "ill-typed-examples" </> name)
+              ("test" </> "ill-typed-examples" </> name)
               (show e)
 
       Right _ ->
@@ -97,7 +91,7 @@ runIllTyped (name, src) =
 
 getAppExamples :: IO [FilePath]
 getAppExamples = do
-  appPaths <- listDirectory dir
+  appPaths <- (fmap.fmap) ("../example-app" </>) (listDirectory "../example-app")
   let
     (langs, other) =
       List.partition (\path -> takeExtension path == ".bowtie") appPaths

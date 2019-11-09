@@ -77,7 +77,7 @@ parseBlueprint =
 programTypesParser :: Parse.Parser [Item]
 programTypesParser = do
   res <-
-    many $ Mega.try $ do
+    many $ Mega.try do
       _ <- Lexer.indentGuard Parse.spacesOrNewlines EQ Mega.pos1
       parseOne
   _ <- Lexer.indentGuard Parse.spacesOrNewlines EQ Mega.pos1
