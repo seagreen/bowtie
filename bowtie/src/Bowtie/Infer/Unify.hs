@@ -8,8 +8,8 @@ import Bowtie.Surface.AST
 import qualified Data.Set as Set
 
 data UnifyError
-  = UnifyError Type Type
-  | OccursCheckFailed Id Type
+  = TypeMismatch Type Type
+  | IdOccursInType Id Type
   deriving (Eq, Show)
 
 -- | Implementation based on <doc.md#AlgorithmWStepByStep>.
@@ -67,13 +67,13 @@ unify t1 t2 =
           Right (s1 <> s2)
 
         _ ->
-          Left (UnifyError t1 t2)
+          Left (TypeMismatch t1 t2)
   where
     unifyVariable :: Id -> Type -> Either UnifyError Substitution
     unifyVariable id typ =
       if Set.member id (freeVars typ)
         then
-          Left (OccursCheckFailed id typ)
+          Left (IdOccursInType id typ)
 
         else
           Right (singleSub id typ)

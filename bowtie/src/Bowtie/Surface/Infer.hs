@@ -21,7 +21,8 @@ import qualified Data.Set as Set
 
 data TypeError
   = SolveStuck
-  | SolveUnifyError UnifyError
+  | UnifyError Type Type
+  | OccursCheckFailed Id Type
   | AssumptionsRemain Assumptions
   deriving (Eq, Show)
 
@@ -96,8 +97,13 @@ instance CanSolveStuck Infer where
 
 instance CanUnifyError Infer where
   failUnifyError :: UnifyError -> Infer a
-  failUnifyError =
-    throwError . SolveUnifyError
+  failUnifyError e =
+    throwError (case e of
+                 TypeMismatch t1 t2 ->
+                   UnifyError t1 t2
+
+                 IdOccursInType id t ->
+                   OccursCheckFailed id t)
 
 instance CanAssumptionsRemain Infer where
   failAssumptionsRemain :: Assumptions -> Infer a
