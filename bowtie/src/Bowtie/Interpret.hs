@@ -4,13 +4,12 @@ module Bowtie.Interpret
   , interpretProgram
   , sourcesToAST
   , sourcesToCore
-  , concatSource
   , prettyError
   ) where
 
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
-import Bowtie.Surface.AST (AST(astTerms, astTypes))
+import Bowtie.Surface.AST (AST(astTerms, astTypes), IdConfict(..), concatASTs)
 import Bowtie.Type.Kindcheck
 import Bowtie.Type.Parse (ParserErrorBundle)
 
@@ -18,7 +17,7 @@ import qualified Bowtie.Core.Expr as Core
 import qualified Bowtie.Surface.AST as Surface
 import qualified Bowtie.Surface.Desugar as Desugar
 import qualified Bowtie.Surface.Infer as Infer
-import qualified Bowtie.Surface.Parse as Surface.Parse
+import qualified Bowtie.Surface.Parse as Parse
 import qualified Bowtie.Untyped.Erase as Erase
 import qualified Bowtie.Untyped.Eval as Eval
 import qualified Bowtie.Untyped.Expr as Untyped
@@ -28,7 +27,7 @@ import qualified Text.Megaparsec as Mega
 
 data IError
   = ParseError ParserErrorBundle
-  | NameClash Text
+  | NameClash IdConfict
   | TypeError Infer.TypeError
   deriving (Eq, Show)
 
@@ -66,14 +65,14 @@ interpretImpl libFiles appFile = do
   let
     parse :: (FilePath, Text) -> Either IError AST
     parse =
-      Bifunctor.first ParseError . uncurry Surface.Parse.parse
+      Bifunctor.first ParseError . uncurry Parse.parse
 
   libPrograms <- for (hashmapToSortedList libFiles) parse
   appProgram <- parse appFile
 
   ast <- Bifunctor.first
            NameClash
-           (concatSource (libPrograms <> [appProgram])) -- PERFORMANCE
+           (concatASTs (libPrograms <> [appProgram])) -- PERFORMANCE
 
   pure (ast, inferAndEval ast)
   where
@@ -130,28 +129,17 @@ sourcesToCore libFiles appFile = do
   (env, core, _) <- res
   pure (env, core)
 
-concatSource :: [AST] -> Either Text AST
-concatSource =
-  foldM f Surface.emptyAST
-  where
-    f :: AST -> AST -> Either Text AST
-    f s1 s2 =
-      case Surface.appendAST s1 s2 of
-        Left e ->
-          -- TODO: show names of modules
-          Left ("Duplicate definitions found in multiple modules with name " <> show e)
-
-        Right a ->
-          pure a
-
 prettyError :: IError -> Text
 prettyError err =
   case err of
     ParseError e ->
       "Parse error: " <> Text.pack (Mega.errorBundlePretty e)
 
-    NameClash t ->
-      t
+    NameClash (TypeIdConflict id) ->
+      "Duplicate type definitions found in multiple modules with name " <> unId id
+
+    NameClash (TermIdConflict id) ->
+      "Duplicate term definitions found in multiple modules with name " <> unId id
 
     TypeError e ->
       "Type error: " <> show e

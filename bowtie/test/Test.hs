@@ -77,9 +77,9 @@ runIllTyped (name, src) =
             expectationFailure
               ("Unexpected parse error: " <> Text.unpack (Interpret.prettyError err))
 
-          Interpret.NameClash t ->
+          Interpret.NameClash conflict ->
             expectationFailure
-              ("Unexpected name clash error : " <> Text.unpack t)
+              ("Unexpected name clash error : " <> Text.unpack (show conflict))
 
           Interpret.TypeError e ->
             TIO.writeFile

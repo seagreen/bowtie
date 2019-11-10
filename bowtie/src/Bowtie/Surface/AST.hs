@@ -9,6 +9,7 @@ import Bowtie.Lib.Prelude
 import Bowtie.Type.AST
 
 import qualified Bowtie.Lib.OrderedMap as OrderedMap
+import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Set as Set
 
 data AST = AST
@@ -20,12 +21,20 @@ emptyAST :: AST
 emptyAST =
   AST OrderedMap.empty OrderedMap.empty
 
--- | TODO: Specify whether it was a type or term that conflicted.
-appendAST :: AST -> AST -> Either Id AST
+data IdConfict
+  = TypeIdConflict Id
+  | TermIdConflict Id
+  deriving (Eq, Show)
+
+appendAST :: AST -> AST -> Either IdConfict AST
 appendAST (AST a1 b1) (AST a2 b2) = do
-  typs <- OrderedMap.append a1 a2
-  terms <- OrderedMap.append b1 b2
+  typs <- Bifunctor.first TypeIdConflict (OrderedMap.append a1 a2)
+  terms <- Bifunctor.first TermIdConflict (OrderedMap.append b1 b2)
   pure (AST typs terms)
+
+concatASTs :: [AST] -> Either IdConfict AST
+concatASTs =
+  foldM appendAST emptyAST
 
 data Expr
   = Var Id

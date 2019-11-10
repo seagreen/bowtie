@@ -2,4 +2,4 @@ duplicate-term-definitions.bowtie:8:1:
   |
 8 | <empty line>
   | ^
-Duplicate definitions found in module with name a
+Duplicate type definitions found in module with name a

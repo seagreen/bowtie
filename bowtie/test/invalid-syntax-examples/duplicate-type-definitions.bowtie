@@ -2,4 +2,4 @@ duplicate-type-definitions.bowtie:4:1:
   |
 4 | <empty line>
   | ^
-Duplicate definitions found in module with name A
+Duplicate type definitions found in module with name A

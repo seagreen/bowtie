@@ -61,8 +61,11 @@ sourceParser = do
     f :: AST -> AST -> Parser AST
     f s1 s2 =
       case appendAST s1 s2 of
-        Left id ->
-          fail ("Duplicate definitions found in module with name " <> Text.unpack (unId id))
+        Left (TypeIdConflict id) ->
+          fail ("Duplicate type definitions found in module with name " <> Text.unpack (unId id))
+
+        Left (TermIdConflict id) ->
+          fail ("Duplicate type definitions found in module with name " <> Text.unpack (unId id))
 
         Right a ->
           pure a
