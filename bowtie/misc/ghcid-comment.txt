@@ -1,0 +1,10 @@
+The .ghcid file is configuration for https://github.com/ndmitchell/ghcid
+
+Comments in .ghcid files work strangely. I can't figure out how to keep them from showing up in ghcid's output, so I'm keeping the real comments here instead.
+
+The config instructs ghcid to compile the main bowtie package and runs its non-doctest tests.
+
+--dirctory "bowtie" refers to the bowtie subdirectory, this is necessary for the tests to work.
+--warnings allows tests to run even if there are warnings.
+
+NOTE: Is there a way to provide test arguments (eg for when you only want to rerun a specific test)?

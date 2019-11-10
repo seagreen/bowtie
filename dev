@@ -11,23 +11,6 @@ case $1 in
     stack build --fast --file-watch --test --copy-bins
     ;;
 
-  "ghcid")
-    # Only compiles the main bowtie package, and only runs its non-doctest tests.
-    #
-    # Have to cd into `./bowtie` and run `../dev ghcid` for it to work.
-    #
-    # --warnings allows tests to run even if there are warnings.
-    #
-    # NOTE: No way to provide test arguments?
-    ghcid \
-      --command "stack ghci --main-is bowtie:spec --test" \
-      --test "Main.main" \
-      --warnings \
-      --restart package.yaml \
-      --restart ../example-app \
-      --restart ../example-lib \
-    ;;
-
   "lunar")
     watchexec --restart './.bin/bowtie example-app/lunar-lander.bowtie' --watch .bin/bowtie --watch example-app --watch example-lib
     ;;

@@ -1,0 +1,9 @@
+--command "stack ghci --main-is bowtie:spec --test"
+--directory "bowtie"
+--test "Main.main"
+--warnings
+--restart package.yaml
+--restart example-app
+--restart example-lib
+
+# See ./bowtie/misc/ghcid-comment.txt for details
