@@ -33,7 +33,6 @@ import Numeric.Natural as X (Natural)
 
 -- Local stuff:
 
-import Control.Monad.Except
 import Control.Monad.State.Class
 import GHC.Stack.Types (HasCallStack)
 import System.Directory (listDirectory)
@@ -86,17 +85,6 @@ exitWithError e = do
 show :: Show a => a -> Text
 show =
   Text.pack . Prelude.show
-
--- | See: https://github.com/haskell/mtl/issues/60
--- Not released yet as of 2.2.2.
-mapError
-  :: MonadError e' m
-  => (e -> e')
-  -> ExceptT e m a
-  -> m a
-mapError f m = do
-  res <- runExceptT (withExceptT f m)
-  liftEither res
 
 hashmapToSortedList :: Ord k => HashMap k v -> [(k, v)]
 hashmapToSortedList =

@@ -1,1 +1,1 @@
-SolveError (SolveUnifyError (UnifyError (TConstructor (Id "Int")) (TConstructor (Id "Bool"))))
+SolveUnifyError (UnifyError (TConstructor (Id "Int")) (TConstructor (Id "Bool")))

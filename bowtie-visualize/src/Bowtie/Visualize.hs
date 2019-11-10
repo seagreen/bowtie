@@ -4,13 +4,13 @@ module Bowtie.Visualize
   ) where
 
 import Bowtie.Infer.Constraints
-import Bowtie.Infer.Solve (SolveError(..), next, solveConstraint)
+import Bowtie.Infer.Solve
+import Bowtie.Infer.Solve (next, solveConstraint)
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
 import Bowtie.Type.Kindcheck (kindcheck)
 import Bowtie.Visualize.GraphConstraints (graphConstraints)
-import Control.Monad.Except
 import Control.Monad.State.Class
 import System.Process.Typed
 
@@ -41,10 +41,14 @@ run libFiles appFile = do
           Surface.Desugar.extractResult (astTerms ast)
 
       let
-        f :: (MonadState Int m, MonadError Infer.TypeError m) => m [Constraints]
+        f :: ( MonadState Int m
+             , CanSolveStuck m
+             , CanUnifyError m
+             , Infer.CanAssumptionsRemain m
+             ) => m [Constraints]
         f = do
           (constraints, _) <- Infer.gatherConstraints env dsg
-          mapError Infer.SolveError (solutionSteps constraints)
+          solutionSteps constraints
 
       case Infer.runInfer f of
         Left e ->
@@ -62,7 +66,10 @@ writeConstraints cs =
       bts <- runCommand "dot" "-Tsvg" (encodeUtf8 (graphConstraints c))
       BS.writeFile (Text.unpack (show n <> ".svg")) bts
 
-solutionSteps :: (MonadState Int m, MonadError SolveError m) => Constraints -> m [Constraints]
+solutionSteps
+  :: (MonadState Int m, CanSolveStuck m, CanUnifyError m)
+  => Constraints
+  -> m [Constraints]
 solutionSteps cs = do
   case next cs of
     Nothing ->
@@ -71,10 +78,10 @@ solutionSteps cs = do
           pure mempty
 
         else
-          throwError SolveStuck
+          failSolveStuck
 
     Just (c, rest) -> do
-      (_sub, rest2) <- mapError SolveUnifyError (solveConstraint c rest)
+      (_sub, rest2) <- solveConstraint c rest
       fmap (rest:) (solutionSteps rest2)
 
 -- | Below should be in a lib somewhere

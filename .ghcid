@@ -1,4 +1,4 @@
---command "stack ghci --main-is bowtie:spec --test"
+--command "stack ghci --main-is bowtie:spec --test bowtie"
 --directory "bowtie"
 --test "Main.main"
 --warnings
