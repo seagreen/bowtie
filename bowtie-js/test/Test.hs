@@ -42,7 +42,6 @@ testApps :: HashMap FilePath Text -> Spec
 testApps libFiles =
   it "lunar-lander" do
     appSource <- TIO.readFile "../example-app/lunar-lander.bowtie"
-    -- TODO: get rid of ..
     js <- case sourcesToCore libFiles ("../example-app/lunar-lander.bowtie", appSource) of
             Left e ->
               exitWithError (prettyError e)
