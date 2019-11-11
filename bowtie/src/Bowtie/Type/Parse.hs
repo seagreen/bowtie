@@ -26,8 +26,8 @@ import Control.Applicative.Combinators.NonEmpty
 import Text.Megaparsec hiding
   (State, Token, parse, parseTest, runParser, sepBy1)
 
+import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import qualified Data.Char as Char
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
@@ -54,9 +54,9 @@ type ParserErrorBundle = ParseErrorBundle Text Void
 -- )
 --
 -- >>> parseTest declEntryParser "type Foo a b = Bar Bool a | Baz Int b"
--- (Id "Foo",TypeDeclaration [Id "a",Id "b"] (fromList [(Id "Baz",[TConstructor (Id "Int"),TVariable (Id "b")]),(Id "Bar",[TConstructor (Id "Bool"),TVariable (Id "a")])]))
+-- (Id "Foo",TypeDeclaration [Id "a",Id "b"] (OrderedMap (fromList [(Id "Baz",(1,[TConstructor (Id "Int"),TVariable (Id "b")])),(Id "Bar",(0,[TConstructor (Id "Bool"),TVariable (Id "a")]))]) (fromList [(0,(Id "Bar",[TConstructor (Id "Bool"),TVariable (Id "a")])),(1,(Id "Baz",[TConstructor (Id "Int"),TVariable (Id "b")]))])))
 --
--- TODO: switch type constructors to ordered map
+-- ^^ TODO: OrderedMaps do not do well with Show
 declEntryParser :: Parser (Id, TypeDeclaration)
 declEntryParser = do
   -- Note that we don't parse a @Break@ here. If each top level
@@ -67,7 +67,12 @@ declEntryParser = do
   typeArgs <- many (lexeme lowerIdParser)
   symbol "="
   constructors <- constructorParser `sepBy` symbol "|"
-  pure (typeId, TypeDeclaration typeArgs (HashMap.fromList constructors))
+  case OrderedMap.fromList constructors of
+    Left id ->
+      fail ("Duplicate constructors found in type declaration with id: " <> Text.unpack (unId id))
+
+    Right constructorMap ->
+      pure (typeId, TypeDeclaration typeArgs constructorMap)
 
 -- |
 -- >>> parseTest constructorParser "Bar Bool a"

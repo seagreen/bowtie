@@ -33,7 +33,7 @@ parse path =
 
 -- |
 -- >>> parseTest sourceParser "type A = A\n\ntype B = B"
--- AST {astTypes = OrderedMap (fromList [(Id "A",(0,TypeDeclaration [] (fromList [(Id "A",[])]))),(Id "B",(1,TypeDeclaration [] (fromList [(Id "B",[])])))]) (fromList [(0,(Id "A",TypeDeclaration [] (fromList [(Id "A",[])]))),(1,(Id "B",TypeDeclaration [] (fromList [(Id "B",[])])))]), astTerms = OrderedMap (fromList []) (fromList [])}
+-- AST {astTypes = OrderedMap (fromList [(Id "A",(0,TypeDeclaration [] (OrderedMap (fromList [(Id "A",(0,[]))]) (fromList [(0,(Id "A",[]))])))),(Id "B",(1,TypeDeclaration [] (OrderedMap (fromList [(Id "B",(0,[]))]) (fromList [(0,(Id "B",[]))]))))]) (fromList [(0,(Id "A",TypeDeclaration [] (OrderedMap (fromList [(Id "A",(0,[]))]) (fromList [(0,(Id "A",[]))])))),(1,(Id "B",TypeDeclaration [] (OrderedMap (fromList [(Id "B",(0,[]))]) (fromList [(0,(Id "B",[]))]))))]), astTerms = OrderedMap (fromList []) (fromList [])}
 --
 -- ^^ TODO: OrderedMaps do not do well with Show
 sourceParser :: Parser AST

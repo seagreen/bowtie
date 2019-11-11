@@ -19,7 +19,7 @@ kindcheck =
     -- E.g. if the first is Maybe, the second is Nothing and Just.
     constructorsFromDecls :: (Id, TypeDeclaration) -> [(Id, TypeScheme)]
     constructorsFromDecls (typeId, TypeDeclaration polyVars constructors) =
-      fmap constructorType (HashMap.toList constructors)
+      fmap constructorType (OrderedMap.toList constructors)
       where
         constructorType :: (Id, [Type]) -> (Id, TypeScheme)
         constructorType (conId, args) =

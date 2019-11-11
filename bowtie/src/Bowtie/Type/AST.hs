@@ -1,6 +1,7 @@
 module Bowtie.Type.AST where
 
 import Bowtie.Lib.FreeVars
+import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude
 
 import qualified Data.Set as Set
@@ -9,7 +10,7 @@ import qualified Data.Set as Set
 data TypeDeclaration
   = TypeDeclaration
       [Id]-- ^ Polymorphic over these variables
-      (HashMap Id [Type])
+      (OrderedMap Id [Type])
   deriving (Eq, Show)
 
 data Type
