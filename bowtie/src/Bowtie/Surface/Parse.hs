@@ -14,8 +14,8 @@ import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude hiding (many, some)
 import Bowtie.Surface.AST
 import Bowtie.Type.Parse
-  (Parser, ParserErrorBundle, lexeme, lowerIdParser, parseTest,
-  spacesOrNewlines, symbol, upperIdParser)
+  (Parser, ParserErrorBundle, lexeme, lowerIbindingParser, parseTest,
+  spacesOrNewlines, symbol, upperIbindingParser)
 import Control.Applicative.Combinators.NonEmpty
 import Text.Megaparsec hiding (parse, parseTest, some)
 
@@ -46,12 +46,12 @@ sourceParser = do
   -- entries <-
   --   many $ try $ do
   --     _ <- Lexer.indentGuard spacesOrNewlines EQ pos1
-  --     entryParser
+  --     declarationParser
 
   _ <- Lexer.indentGuard spacesOrNewlines EQ pos1
   entries <-
     many do
-      e <- entryParser
+      e <- declarationParser
       -- TODO: ensure that we actually did get an eof at the end of the list
       void (Lexer.indentGuard spacesOrNewlines EQ pos1) <|> eof
       pure e
@@ -70,34 +70,36 @@ sourceParser = do
         Right a ->
           pure a
 
-entryParser :: Parser AST
-entryParser =
-  label "entryParser"
-    (   fmap (\(i,d) -> AST (OrderedMap.singleton i d) OrderedMap.empty) Type.declEntryParser
-    <|> fmap (\(i,e,typ) -> AST OrderedMap.empty (OrderedMap.singleton i (e, typ))) dParser
+declarationParser :: Parser AST
+declarationParser =
+  label "declarationParser"
+    (   fmap (\(i,d) -> AST (OrderedMap.singleton i d) OrderedMap.empty) Type.typeDeclarationParser
+    <|> fmap (\(i,e,typ) -> AST OrderedMap.empty (OrderedMap.singleton i (e, typ))) bindingParser
     )
 
 -- |
--- >>> parseTest dParser "a : Int\na =\n  1"
+-- >>> parseTest bindingParser "a : Int\na =\n  1"
 -- (Id "a",IntLiteral 1,TConstructor (Id "Int"))
-dParser :: Parser (Id, Expr, Type)
-dParser = do
+--
+-- Parses value declarations as well.
+bindingParser :: Parser (Id, Expr, Type)
+bindingParser = do
   pos <- Lexer.indentLevel
-  (id, typ) <- Type.defParser
+  (id, typ) <- Type.typeSignatureParser
   _ <- Lexer.indentGuard spacesOrNewlines EQ pos
-  (id2, expr) <- valDefParser
+  (id2, expr) <- bindingBodyParser
   when
     (id /= id2)
     (fail (Text.unpack ("Type and term IDs don't match: " <> unId id <> " " <> unId id2)))
   pure (id, expr, typ)
 
 -- |
--- >>> parseTest valDefParser "a =\n  1"
+-- >>> parseTest bindingBodyParser "a =\n  1"
 -- (Id "a",IntLiteral 1)
-valDefParser :: Parser (Id, Expr)
-valDefParser = do
+bindingBodyParser :: Parser (Id, Expr)
+bindingBodyParser = do
   pos <- Lexer.indentLevel
-  i <- lexeme lowerIdParser
+  i <- lexeme lowerIbindingParser
   symbol "="
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
   e <- exprParser
@@ -119,7 +121,7 @@ lamParser :: Parser Expr
 lamParser = do
   pos <- Lexer.indentLevel
   symbol "\\"
-  id <- lexeme lowerIdParser
+  id <- lexeme lowerIbindingParser
   mType <- optional annotationParser
   symbol "."
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
@@ -147,7 +149,7 @@ letParser = do
     p :: Parser (Lexer.IndentOpt Parser (OrderedMap Id (Expr, Type)) (Id, Expr, Type))
     p = do
       symbol "let"
-      pure (Lexer.IndentSome Nothing g dParser)
+      pure (Lexer.IndentSome Nothing g bindingParser)
 
     g :: [(Id, Expr, Type)] -> Parser (OrderedMap Id (Expr, Type))
     g decls =
@@ -184,8 +186,8 @@ caseParser =
 altParser :: Parser Alt
 altParser = do
   pos <- Lexer.indentLevel
-  i <- lexeme upperIdParser
-  ids <- many (lexeme lowerIdParser)
+  i <- lexeme upperIbindingParser
+  ids <- many (lexeme lowerIbindingParser)
   symbol "->"
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
   e <- exprParser
@@ -218,11 +220,11 @@ itemParser =
 
 varParser :: Parser Expr
 varParser =
-  fmap Var (lexeme lowerIdParser)
+  fmap Var (lexeme lowerIbindingParser)
 
 conParser :: Parser Expr
 conParser =
-  fmap Construct (lexeme upperIdParser)
+  fmap Construct (lexeme upperIbindingParser)
 
 -- |
 -- >>> parseTest intParser "1"

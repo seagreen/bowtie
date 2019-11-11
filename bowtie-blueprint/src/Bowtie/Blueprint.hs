@@ -86,8 +86,8 @@ programTypesParser = do
 parseOne :: Parse.Parser Item
 parseOne =
   Mega.label "parseOne"
-    (   Mega.try (fmap (uncurry Decl) Parse.declEntryParser)
-    <|> Mega.try (fmap (uncurry Func) Parse.defParser)
+    (   Mega.try (fmap (uncurry Decl) Parse.typeDeclarationParser)
+    <|> Mega.try (fmap (uncurry Func) Parse.typeSignatureParser)
     )
 
 -- * Markdown

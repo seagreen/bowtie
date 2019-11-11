@@ -1,11 +1,11 @@
 module Bowtie.Type.Parse
   ( Parser
   , ParserErrorBundle
-  , declEntryParser
-  , defParser
+  , typeDeclarationParser
+  , typeSignatureParser
   , typeParser
-  , lowerIdParser
-  , upperIdParser
+  , lowerIbindingParser
+  , upperIbindingParser
 
   -- | Helpers
   , lexeme
@@ -53,18 +53,18 @@ type ParserErrorBundle = ParseErrorBundle Text Void
 --       ])
 -- )
 --
--- >>> parseTest declEntryParser "type Foo a b = Bar Bool a | Baz Int b"
+-- >>> parseTest typeDeclarationParser "type Foo a b = Bar Bool a | Baz Int b"
 -- (Id "Foo",TypeDeclaration [Id "a",Id "b"] (OrderedMap (fromList [(Id "Baz",(1,[TConstructor (Id "Int"),TVariable (Id "b")])),(Id "Bar",(0,[TConstructor (Id "Bool"),TVariable (Id "a")]))]) (fromList [(0,(Id "Bar",[TConstructor (Id "Bool"),TVariable (Id "a")])),(1,(Id "Baz",[TConstructor (Id "Int"),TVariable (Id "b")]))])))
 --
 -- ^^ TODO: OrderedMaps do not do well with Show
-declEntryParser :: Parser (Id, TypeDeclaration)
-declEntryParser = do
+typeDeclarationParser :: Parser (Id, TypeDeclaration)
+typeDeclarationParser = do
   -- Note that we don't parse a @Break@ here. If each top level
   -- parser started with Break it would actually have to be
   -- @try (toss Break)@ so they wouldn't step on each other's toes.
   symbol "type"
-  typeId <- lexeme upperIdParser
-  typeArgs <- many (lexeme lowerIdParser)
+  typeId <- lexeme upperIbindingParser
+  typeArgs <- many (lexeme lowerIbindingParser)
   symbol "="
   constructors <- constructorParser `sepBy` symbol "|"
   case OrderedMap.fromList constructors of
@@ -79,7 +79,7 @@ declEntryParser = do
 -- (Id "Bar",[TConstructor (Id "Bool"),TVariable (Id "a")])
 constructorParser :: Parser (Id, [Type])
 constructorParser = do
-  id <- lexeme upperIdParser
+  id <- lexeme upperIbindingParser
   args <- many constructorArgParser
   pure (id, args)
 
@@ -103,11 +103,11 @@ constructorArgParser =
     )
 
 -- |
--- >>> parseTest defParser "foo : Int -> a"
+-- >>> parseTest typeSignatureParser "foo : Int -> a"
 -- (Id "foo",TArrow (TConstructor (Id "Int")) (TVariable (Id "a")))
-defParser :: Parser (Id, Type)
-defParser = do
-  i <- lexeme lowerIdParser
+typeSignatureParser :: Parser (Id, Type)
+typeSignatureParser = do
+  i <- lexeme lowerIbindingParser
   symbol ":"
   t <- typeParser
   pure (i, t)
@@ -160,18 +160,18 @@ singleTypeParser = do
 singleTypeParser' :: Parser Type
 singleTypeParser' =
   -- TODO: a good label
-      fmap TVariable (lexeme lowerIdParser)
-  <|> fmap TConstructor (lexeme upperIdParser)
+      fmap TVariable (lexeme lowerIbindingParser)
+  <|> fmap TConstructor (lexeme upperIbindingParser)
 
 -- |
--- >>> parseTest lowerIdParser "a"
+-- >>> parseTest lowerIbindingParser "a"
 -- Id "a"
 --
 -- When we had a separate lexer this could just be tried after trying
 -- to lex keyword tokens like "let" and "in". Now that we don't
 -- it needs logic so that it doesn't eat those keywords.
-lowerIdParser :: Parser Id
-lowerIdParser = do
+lowerIbindingParser :: Parser Id
+lowerIbindingParser = do
   notFollowedBy (keyword *> satisfy (not . validIdChar))
   c <- satisfy Char.isLower
   rest <- takeWhileP (Just "followup identifier char") validIdChar
@@ -192,10 +192,10 @@ keywordList =
   ]
 
 -- |
--- >>> parseTest upperIdParser "Unit"
+-- >>> parseTest upperIbindingParser "Unit"
 -- Id "Unit"
-upperIdParser :: Parser Id
-upperIdParser = do
+upperIbindingParser :: Parser Id
+upperIbindingParser = do
   c <- satisfy Char.isUpper
   rest <- takeWhileP (Just "followup identifier char") validIdChar
   pure (Id (Text.cons c rest))
