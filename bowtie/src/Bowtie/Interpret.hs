@@ -5,6 +5,7 @@ module Bowtie.Interpret
   , sourcesToAST
   , sourcesToCore
   , prettyError
+  , toIError
   ) where
 
 import Bowtie.Lib.Environment
@@ -42,8 +43,8 @@ interpretProgram
   -> (FilePath, Text)
   -> Either IError Untyped.Expr
 interpretProgram libFiles appFile = do
-  (_, res) <- interpretImpl libFiles appFile
-  (_, _, val) <- res
+  (_, res) <- Bifunctor.first toIError (interpretImpl libFiles appFile)
+  (_, _, val) <- Bifunctor.first TypeError res
   pure val
 
 -- | Internal.
@@ -53,30 +54,28 @@ interpretImpl
   :: HashMap FilePath Text
   -> (FilePath, Text)
   -> Either
-       IError
+       (Either ParserErrorBundle IdConfict)
        ( AST
        , Either
-           IError
+           Infer.TypeError
            (Environment, Core.Expr, Untyped.Expr)
        )
 interpretImpl libFiles appFile = do
 
   -- Parse
   let
-    parse :: (FilePath, Text) -> Either IError AST
+    parse :: (FilePath, Text) -> Either (Either ParserErrorBundle IdConfict) AST
     parse =
-      Bifunctor.first ParseError . uncurry Parse.parse
+      Bifunctor.first Left . uncurry Parse.parse
 
   libPrograms <- for (hashmapToSortedList libFiles) parse
   appProgram <- parse appFile
 
-  ast <- Bifunctor.first
-           NameClash
-           (concatASTs (libPrograms <> [appProgram])) -- PERFORMANCE
+  ast <- Bifunctor.first Right (concatASTs (libPrograms <> [appProgram])) -- PERFORMANCE
 
   pure (ast, inferAndEval ast)
   where
-    inferAndEval :: AST -> Either IError (Environment, Core.Expr, Untyped.Expr)
+    inferAndEval :: AST -> Either Infer.TypeError (Environment, Core.Expr, Untyped.Expr)
     inferAndEval ast = do
 
       -- Kindcheck and infer
@@ -89,9 +88,7 @@ interpretImpl libFiles appFile = do
         dsg =
           Desugar.extractResult (astTerms ast)
 
-      (_, _, explicitlyTypedExpr) <- Bifunctor.first
-                                       TypeError
-                                       (Infer.elaborate env dsg)
+      (_, _, explicitlyTypedExpr) <- Infer.elaborate env dsg
 
       -- Desugar and erase
       let
@@ -112,7 +109,10 @@ interpretImpl libFiles appFile = do
           pure (env, core, val)
 
 -- | For use by tests or other packages.
-sourcesToAST :: HashMap FilePath Text -> (FilePath, Text) -> Either IError AST
+sourcesToAST
+  :: HashMap FilePath Text
+  -> (FilePath, Text)
+  -> Either (Either ParserErrorBundle IdConfict) AST
 sourcesToAST libFiles appFile = do
   (ast, _) <- interpretImpl libFiles appFile
   pure ast
@@ -125,8 +125,8 @@ sourcesToCore
   -> (FilePath, Text)
   -> Either IError (Environment, Core.Expr)
 sourcesToCore libFiles appFile = do
-  (_, res) <- interpretImpl libFiles appFile
-  (env, core, _) <- res
+  (_, res) <- Bifunctor.first toIError (interpretImpl libFiles appFile)
+  (env, core, _) <- Bifunctor.first TypeError res
   pure (env, core)
 
 prettyError :: IError -> Text
@@ -143,3 +143,12 @@ prettyError err =
 
     TypeError e ->
       "Type error: " <> show e
+
+toIError :: Either ParserErrorBundle IdConfict -> IError
+toIError err =
+  case err of
+    Left e ->
+      ParseError e
+
+    Right e ->
+      NameClash e
