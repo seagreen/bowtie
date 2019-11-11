@@ -4,8 +4,8 @@ module Bowtie.Type.Parse
   , typeDeclarationParser
   , typeSignatureParser
   , typeParser
-  , lowerIbindingParser
-  , upperIbindingParser
+  , lowerIdParser
+  , upperIdParser
 
   -- | Helpers
   , lexeme
@@ -63,8 +63,8 @@ typeDeclarationParser = do
   -- parser started with Break it would actually have to be
   -- @try (toss Break)@ so they wouldn't step on each other's toes.
   symbol "type"
-  typeId <- lexeme upperIbindingParser
-  typeArgs <- many (lexeme lowerIbindingParser)
+  typeId <- lexeme upperIdParser
+  typeArgs <- many (lexeme lowerIdParser)
   symbol "="
   constructors <- constructorParser `sepBy` symbol "|"
   case OrderedMap.fromList constructors of
@@ -79,7 +79,7 @@ typeDeclarationParser = do
 -- (Id "Bar",[TConstructor (Id "Bool"),TVariable (Id "a")])
 constructorParser :: Parser (Id, [Type])
 constructorParser = do
-  id <- lexeme upperIbindingParser
+  id <- lexeme upperIdParser
   args <- many constructorArgParser
   pure (id, args)
 
@@ -107,7 +107,7 @@ constructorArgParser =
 -- (Id "foo",TArrow (TConstructor (Id "Int")) (TVariable (Id "a")))
 typeSignatureParser :: Parser (Id, Type)
 typeSignatureParser = do
-  i <- lexeme lowerIbindingParser
+  i <- lexeme lowerIdParser
   symbol ":"
   t <- typeParser
   pure (i, t)
@@ -160,18 +160,18 @@ singleTypeParser = do
 singleTypeParser' :: Parser Type
 singleTypeParser' =
   -- TODO: a good label
-      fmap TVariable (lexeme lowerIbindingParser)
-  <|> fmap TConstructor (lexeme upperIbindingParser)
+      fmap TVariable (lexeme lowerIdParser)
+  <|> fmap TConstructor (lexeme upperIdParser)
 
 -- |
--- >>> parseTest lowerIbindingParser "a"
+-- >>> parseTest lowerIdParser "a"
 -- Id "a"
 --
 -- When we had a separate lexer this could just be tried after trying
 -- to lex keyword tokens like "let" and "in". Now that we don't
 -- it needs logic so that it doesn't eat those keywords.
-lowerIbindingParser :: Parser Id
-lowerIbindingParser = do
+lowerIdParser :: Parser Id
+lowerIdParser = do
   notFollowedBy (keyword *> satisfy (not . validIdChar))
   c <- satisfy Char.isLower
   rest <- takeWhileP (Just "followup identifier char") validIdChar
@@ -192,10 +192,10 @@ keywordList =
   ]
 
 -- |
--- >>> parseTest upperIbindingParser "Unit"
+-- >>> parseTest upperIdParser "Unit"
 -- Id "Unit"
-upperIbindingParser :: Parser Id
-upperIbindingParser = do
+upperIdParser :: Parser Id
+upperIdParser = do
   c <- satisfy Char.isUpper
   rest <- takeWhileP (Just "followup identifier char") validIdChar
   pure (Id (Text.cons c rest))

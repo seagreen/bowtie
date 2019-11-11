@@ -14,8 +14,8 @@ import Bowtie.Lib.OrderedMap (OrderedMap)
 import Bowtie.Lib.Prelude hiding (many, some)
 import Bowtie.Surface.AST
 import Bowtie.Type.Parse
-  (Parser, ParserErrorBundle, lexeme, lowerIbindingParser, parseTest,
-  spacesOrNewlines, symbol, upperIbindingParser)
+  (Parser, ParserErrorBundle, lexeme, lowerIdParser, parseTest,
+  spacesOrNewlines, symbol, upperIdParser)
 import Control.Applicative.Combinators.NonEmpty
 import Text.Megaparsec hiding (parse, parseTest, some)
 
@@ -99,7 +99,7 @@ bindingParser = do
 bindingBodyParser :: Parser (Id, Expr)
 bindingBodyParser = do
   pos <- Lexer.indentLevel
-  i <- lexeme lowerIbindingParser
+  i <- lexeme lowerIdParser
   symbol "="
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
   e <- exprParser
@@ -121,7 +121,7 @@ lamParser :: Parser Expr
 lamParser = do
   pos <- Lexer.indentLevel
   symbol "\\"
-  id <- lexeme lowerIbindingParser
+  id <- lexeme lowerIdParser
   mType <- optional annotationParser
   symbol "."
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
@@ -186,8 +186,8 @@ caseParser =
 altParser :: Parser Alt
 altParser = do
   pos <- Lexer.indentLevel
-  i <- lexeme upperIbindingParser
-  ids <- many (lexeme lowerIbindingParser)
+  i <- lexeme upperIdParser
+  ids <- many (lexeme lowerIdParser)
   symbol "->"
   _ <- Lexer.indentGuard spacesOrNewlines GT pos
   e <- exprParser
@@ -220,11 +220,11 @@ itemParser =
 
 varParser :: Parser Expr
 varParser =
-  fmap Var (lexeme lowerIbindingParser)
+  fmap Var (lexeme lowerIdParser)
 
 conParser :: Parser Expr
 conParser =
-  fmap Construct (lexeme upperIbindingParser)
+  fmap Construct (lexeme upperIdParser)
 
 -- |
 -- >>> parseTest intParser "1"
