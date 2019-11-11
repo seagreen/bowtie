@@ -13,7 +13,8 @@ import qualified Bowtie.Example
 import qualified Data.Text.IO as TIO
 
 main :: IO ()
-main =
+main = do
+  libFiles <- readDirectoryFiles "../example-lib"
   hspec do
     describe
       "well-typed-examples"
@@ -21,7 +22,7 @@ main =
 
     describe
       "applications"
-      testApps
+      (testApps libFiles)
 
 runWellTyped :: (FilePath, Text) -> Spec
 runWellTyped (name, src) =
@@ -37,11 +38,10 @@ runWellTyped (name, src) =
     let annotatedRes = res <> "\n\n/*\n" <> js <> "\n*/\n"
     TIO.writeFile ("test/well-typed-golden-files" </> name) annotatedRes
 
-testApps :: Spec
-testApps =
+testApps :: HashMap FilePath Text -> Spec
+testApps libFiles =
   it "lunar-lander" do
     appSource <- TIO.readFile "../example-app/lunar-lander.bowtie"
-    libFiles <- readDirectoryFiles "../example-lib" -- TODO: wasted work
     -- TODO: get rid of ..
     js <- case sourcesToCore libFiles ("../example-app/lunar-lander.bowtie", appSource) of
             Left e ->

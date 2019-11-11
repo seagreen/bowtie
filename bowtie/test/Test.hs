@@ -16,6 +16,7 @@ import qualified Text.Megaparsec as Mega
 
 main :: IO ()
 main = do
+  libFiles <- readDirectoryFiles "../example-lib"
   appExamples <- getAppExamples
   hspec do
     describe
@@ -37,12 +38,11 @@ main = do
     Bowtie.Surface.InferSpec.spec
 
     describe "example-app" $
-      for_ appExamples f
+      for_ appExamples (f libFiles)
   where
-    f :: FilePath -> Spec
-    f path =
+    f :: HashMap FilePath Text -> FilePath -> Spec
+    f libFiles path =
       it path do
-        libFiles <- readDirectoryFiles "../example-lib" -- TODO: wasted work
         appSource <- TIO.readFile path
         case Interpret.interpretProgram libFiles (path, appSource) of
           Left e ->
