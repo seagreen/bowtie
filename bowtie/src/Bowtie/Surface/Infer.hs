@@ -4,9 +4,10 @@ module Bowtie.Surface.Infer where
 import Bowtie.Infer.Assumptions (Assumptions)
 import Bowtie.Infer.BottomUp
 import Bowtie.Infer.Constraints
-import Bowtie.Infer.Unify
 import Bowtie.Infer.Solve
 import Bowtie.Infer.Substitution
+import Bowtie.Infer.Unify
+import Bowtie.Lib.CanFailWith
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
@@ -39,7 +40,11 @@ elaborate env expr = do
       pure (sub, typ, substExpr sub freshExpr)
 
 inferType
-  :: (MonadState Int m, CanSolveStuck m, CanUnifyError m, CanAssumptionsRemain m)
+  :: ( MonadState Int m
+     , CanFailWith SolveStuck m
+     , CanFailWith UnifyError m
+     , CanFailWith Assumptions m
+     )
   => Environment
   -> Expr
   -> m (Substitution, Type)
@@ -49,11 +54,8 @@ inferType env expr = do
   -- Heeren paper doesn't do the substType here:
   pure (s, substType s typ)
 
-class CanAssumptionsRemain m where
-  failAssumptionsRemain :: Assumptions -> m a
-
 gatherConstraints
-  :: (MonadState Int m, CanAssumptionsRemain m)
+  :: (MonadState Int m, CanFailWith Assumptions m)
   => Environment
   -> Expr
   -> m (Constraints, Type)
@@ -70,7 +72,7 @@ gatherConstraints env expr = do
       pure ()
 
     else
-      failAssumptionsRemain a
+      failWith a
 
   pure (c <> explicitConstraintOnSet env a, t)
 
@@ -90,14 +92,14 @@ newtype Infer a
   = Infer (StateT Int (Either TypeError) a)
   deriving newtype (Functor, Applicative, Monad, MonadError TypeError, MonadState Int)
 
-instance CanSolveStuck Infer where
-  failSolveStuck :: Infer a
-  failSolveStuck =
+instance CanFailWith SolveStuck Infer where
+  failWith :: SolveStuck -> Infer a
+  failWith SolveStuckError =
     throwError SolveStuck
 
-instance CanUnifyError Infer where
-  failUnifyError :: UnifyError -> Infer a
-  failUnifyError e =
+instance CanFailWith UnifyError Infer where
+  failWith :: UnifyError -> Infer a
+  failWith e =
     throwError (case e of
                  TypeMismatch t1 t2 ->
                    UnifyError t1 t2
@@ -105,11 +107,11 @@ instance CanUnifyError Infer where
                  IdOccursInType id t ->
                    OccursCheckFailed id t)
 
-instance CanAssumptionsRemain Infer where
-  failAssumptionsRemain :: Assumptions -> Infer a
-  failAssumptionsRemain =
+instance CanFailWith Assumptions Infer where
+  failWith :: Assumptions -> Infer a
+  failWith =
     throwError . AssumptionsRemain
 
 runInfer :: Infer a -> Either TypeError a
-runInfer (Infer g) =
-  evalStateT g 0
+runInfer (Infer f) =
+  evalStateT f 0

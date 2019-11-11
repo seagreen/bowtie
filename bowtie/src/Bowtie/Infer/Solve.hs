@@ -4,6 +4,7 @@ import Bowtie.Infer.Constraints
 import Bowtie.Infer.Generalize (generalize, instantiate)
 import Bowtie.Infer.Substitution
 import Bowtie.Infer.Unify
+import Bowtie.Lib.CanFailWith
 import Bowtie.Lib.Prelude
 import Control.Monad.State.Class
 
@@ -11,14 +12,12 @@ import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Data.List as List
 import qualified Data.Set as Set
 
-class CanSolveStuck m where
-  failSolveStuck :: m a
-
-class CanUnifyError m where
-  failUnifyError :: UnifyError -> m a
+data SolveStuck
+  = SolveStuckError
+  deriving (Eq, Show)
 
 solve
-  :: (MonadState Int m, CanSolveStuck m, CanUnifyError m)
+  :: (MonadState Int m, CanFailWith SolveStuck m, CanFailWith UnifyError m)
   => Constraints
   -> m Substitution
 solve cs = do
@@ -29,14 +28,14 @@ solve cs = do
           pure mempty
 
         else
-          failSolveStuck
+          failWith SolveStuckError
 
     Just (c, rest) -> do
       (sub, rest2) <- solveConstraint c rest
       fmap (\a -> a <> sub) (solve rest2)
 
 solveConstraint
-  :: (MonadState Int m, CanUnifyError m)
+  :: (MonadState Int m, CanFailWith UnifyError m)
   => Constraint
   -> Constraints
   -> m (Substitution, Constraints)
@@ -44,8 +43,8 @@ solveConstraint c rest = do
   case c of
     EqualityConstraint t1 t2 -> do
       sub <- case unify t1 t2 of
-               Left e ->
-                 failUnifyError e
+               Left unifyError ->
+                 failWith unifyError
 
                Right s ->
                  pure s

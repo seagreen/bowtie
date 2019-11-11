@@ -3,9 +3,11 @@ module Bowtie.Visualize
   , writeConstraints
   ) where
 
+import Bowtie.Infer.Assumptions (Assumptions)
 import Bowtie.Infer.Constraints
 import Bowtie.Infer.Solve
-import Bowtie.Infer.Solve (next, solveConstraint)
+import Bowtie.Infer.Unify
+import Bowtie.Lib.CanFailWith
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST (AST(astTerms, astTypes))
@@ -42,9 +44,9 @@ run libFiles appFile = do
 
       let
         f :: ( MonadState Int m
-             , CanSolveStuck m
-             , CanUnifyError m
-             , Infer.CanAssumptionsRemain m
+             , CanFailWith SolveStuck m
+             , CanFailWith UnifyError m
+             , CanFailWith Assumptions m
              ) => m [Constraints]
         f = do
           (constraints, _) <- Infer.gatherConstraints env dsg
@@ -67,7 +69,7 @@ writeConstraints cs =
       BS.writeFile (Text.unpack (show n <> ".svg")) bts
 
 solutionSteps
-  :: (MonadState Int m, CanSolveStuck m, CanUnifyError m)
+  :: (MonadState Int m, CanFailWith SolveStuck m, CanFailWith UnifyError m)
   => Constraints
   -> m [Constraints]
 solutionSteps cs = do
@@ -78,7 +80,7 @@ solutionSteps cs = do
           pure mempty
 
         else
-          failSolveStuck
+          failWith SolveStuckError
 
     Just (c, rest) -> do
       (_sub, rest2) <- solveConstraint c rest
