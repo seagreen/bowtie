@@ -46,7 +46,7 @@ function $compareBuiltin(a, b) {
 }
 |]
 
-transpile :: Text -> Either Interpret.IError Text
+transpile :: Text -> Either Interpret.BowtieError Text
 transpile src = do
   (env, coreExpr) <- Interpret.sourcesToCore mempty ("<input>", src)
   pure (transpileCore env coreExpr)

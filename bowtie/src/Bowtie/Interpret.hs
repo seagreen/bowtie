@@ -1,11 +1,11 @@
 module Bowtie.Interpret
-  ( IError(..)
+  ( BowtieError(..)
   , interpret
   , interpretProgram
   , sourcesToAST
   , sourcesToCore
   , prettyError
-  , toIError
+  , toBowtieError
   ) where
 
 import Bowtie.Lib.Environment
@@ -26,14 +26,14 @@ import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Text as Text
 import qualified Text.Megaparsec as Mega
 
-data IError
+data BowtieError
   = ParseError ParserErrorBundle
   | NameClash IdConfict
   | TypeError Infer.TypeError
   deriving (Eq, Show)
 
 -- | For test and REPL use.
-interpret :: Text -> Either IError Untyped.Expr
+interpret :: Text -> Either BowtieError Untyped.Expr
 interpret src =
   interpretProgram mempty ("<input>", src)
 
@@ -41,9 +41,9 @@ interpret src =
 interpretProgram
   :: HashMap FilePath Text
   -> (FilePath, Text)
-  -> Either IError Untyped.Expr
+  -> Either BowtieError Untyped.Expr
 interpretProgram libFiles appFile = do
-  (_, res) <- Bifunctor.first toIError (interpretImpl libFiles appFile)
+  (_, res) <- Bifunctor.first toBowtieError (interpretImpl libFiles appFile)
   (_, _, val) <- Bifunctor.first TypeError res
   pure val
 
@@ -123,13 +123,13 @@ sourcesToAST libFiles appFile = do
 sourcesToCore
   :: HashMap FilePath Text
   -> (FilePath, Text)
-  -> Either IError (Environment, Core.Expr)
+  -> Either BowtieError (Environment, Core.Expr)
 sourcesToCore libFiles appFile = do
-  (_, res) <- Bifunctor.first toIError (interpretImpl libFiles appFile)
+  (_, res) <- Bifunctor.first toBowtieError (interpretImpl libFiles appFile)
   (env, core, _) <- Bifunctor.first TypeError res
   pure (env, core)
 
-prettyError :: IError -> Text
+prettyError :: BowtieError -> Text
 prettyError err =
   case err of
     ParseError e ->
@@ -144,8 +144,8 @@ prettyError err =
     TypeError e ->
       "Type error: " <> show e
 
-toIError :: Either ParserErrorBundle IdConfict -> IError
-toIError err =
+toBowtieError :: Either ParserErrorBundle IdConfict -> BowtieError
+toBowtieError err =
   case err of
     Left e ->
       ParseError e

@@ -30,7 +30,7 @@ run :: HashMap FilePath Text -> (FilePath, Text) -> IO [Constraints]
 run libFiles appFile = do
   case Interpret.sourcesToAST libFiles appFile of
     Left e ->
-      exitWithError (Interpret.prettyError (Interpret.toIError e))
+      exitWithError (Interpret.prettyError (Interpret.toBowtieError e))
 
     Right ast -> do
       let
