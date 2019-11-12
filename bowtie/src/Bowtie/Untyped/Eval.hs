@@ -13,8 +13,11 @@ import qualified Data.Text as Text
 data Error
   = AppNonLambda
   | NotFound Id
+  | CaseNotConstruct Expr
+  | CaseNoMatch Id (HashMap Id Match)
   | CaseWrongNumberVarsMatched Id [Id]
   | ErrorPanic Text
+  | ExpectedAnInt Expr
   deriving (Eq, Show, Generic, NFData)
 
 eval :: TermEnv -> Expr -> Either Error Expr
@@ -63,21 +66,20 @@ evalLam topEnv env id expr = do
 
 evalApp :: TermEnv -> Expr -> Expr -> Either Error Expr
 evalApp topEnv e1 e2 = do
-  res <- eval topEnv e1
-  case res of
+  f <- eval topEnv e1
+  arg <- eval topEnv e2
+  case f of
     Lam env id lamExp -> do
-      res2 <- eval topEnv e2
-      eval (addToEnv env id res2 topEnv) lamExp
+      eval (addToEnv env id arg topEnv) lamExp
 
     Construct tag exps -> do
-      res2 <- eval topEnv e2
-      pure (Construct tag (exps <> [res2])) -- PERFORMANCE
+      pure (Construct tag (exps <> [arg])) -- PERFORMANCE
 
     _ ->
       Left AppNonLambda
 
 evalLet :: TermEnv -> HashMap Id Expr -> Expr -> Either Error Expr
-evalLet topEnv decls e = do
+evalLet topEnv decls body = do
   evaledDecls <- traverse (eval topEnv) decls
 
   let
@@ -86,9 +88,10 @@ evalLet topEnv decls e = do
       TermEnv (HashMap.insert i e' (unTermEnv env))
 
     newEnv :: TermEnv
-    newEnv = HashMap.foldrWithKey f topEnv evaledDecls
+    newEnv =
+      HashMap.foldrWithKey f topEnv evaledDecls
 
-  eval newEnv e
+  eval newEnv body
 
 evalCase :: TermEnv -> Expr -> HashMap Id Match -> Either Error Expr
 evalCase topEnv expr alternatives = do
@@ -98,10 +101,7 @@ evalCase topEnv expr alternatives = do
     Construct conId args ->
       case HashMap.lookup conId alternatives of
         Nothing ->
-          panic
-            (  "Case statement fell through. Constructor being cased apart: " <> show conId
-            <> " alternatives tried: " <> Text.unlines (fmap (\a -> "==============" <> show a) (HashMap.toList alternatives))
-            )
+          Left (CaseNoMatch conId alternatives)
 
         Just (Match boundVars newExp) -> do
           xs :: [(Id, Expr)] <-
@@ -115,7 +115,7 @@ evalCase topEnv expr alternatives = do
           eval (TermEnv (HashMap.fromList xs) <> topEnv) newExp
 
     _ ->
-      panic ("Case not Construct: " <> show res)
+      Left (CaseNotConstruct res)
 
 evalOp :: TermEnv -> Operation -> Either Error Expr
 evalOp topEnv op =
@@ -176,7 +176,7 @@ evalInt env expr = do
       pure n
 
     _ ->
-      panic "not an int"
+      Left (ExpectedAnInt res)
 
 lookup :: Id -> TermEnv -> Either Error Expr
 lookup id env =
