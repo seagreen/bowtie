@@ -8,7 +8,7 @@ import qualified Data.Set as Set
 
 data Expr
   = Var Id
-  | Lam Environment Id Expr
+  | Lam TermEnv Id Expr
   | App Expr Expr
 
   | Let (HashMap Id Expr) Expr
@@ -87,8 +87,8 @@ data Operation
   | Panic Expr
   deriving (Eq, Show, Generic, NFData)
 
-newtype Environment
-  = Environment { unEnvironment :: HashMap Id Expr }
+newtype TermEnv
+  = TermEnv { unTermEnv :: HashMap Id Expr }
   deriving stock (Eq, Show, Generic)
   deriving newtype (Semigroup, Monoid)
   deriving anyclass (NFData)

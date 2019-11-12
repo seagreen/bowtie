@@ -17,7 +17,7 @@ data Error
   | ErrorPanic Text
   deriving (Eq, Show, Generic, NFData)
 
-eval :: Environment -> Expr -> Either Error Expr
+eval :: TermEnv -> Expr -> Either Error Expr
 eval topEnv topExpr =
   case topExpr of
     Var id ->
@@ -44,24 +44,24 @@ eval topEnv topExpr =
     PrimOp op ->
       evalOp topEnv op
 
-evalLam :: Environment -> Environment -> Id -> Expr -> Either Error Expr
+evalLam :: TermEnv -> TermEnv -> Id -> Expr -> Either Error Expr
 evalLam topEnv env id expr = do
   let
     free :: HashMap Id ()
     free =
       HashMap.fromList (fmap (\a -> (a, ())) (Set.toList (freeVars expr)))
 
-    newEnv :: Environment
+    newEnv :: TermEnv
     newEnv =
-      Environment
+      TermEnv
         (HashMap.intersectionWith
           const
-          (unEnvironment (env <> topEnv))
+          (unTermEnv (env <> topEnv))
           free)
 
   pure (Lam newEnv id expr)
 
-evalApp :: Environment -> Expr -> Expr -> Either Error Expr
+evalApp :: TermEnv -> Expr -> Expr -> Either Error Expr
 evalApp topEnv e1 e2 = do
   res <- eval topEnv e1
   case res of
@@ -76,21 +76,21 @@ evalApp topEnv e1 e2 = do
     _ ->
       Left AppNonLambda
 
-evalLet :: Environment -> HashMap Id Expr -> Expr -> Either Error Expr
+evalLet :: TermEnv -> HashMap Id Expr -> Expr -> Either Error Expr
 evalLet topEnv decls e = do
   evaledDecls <- traverse (eval topEnv) decls
 
   let
-    f :: Id -> Expr -> Environment -> Environment
+    f :: Id -> Expr -> TermEnv -> TermEnv
     f i e' env =
-      Environment (HashMap.insert i e' (unEnvironment env))
+      TermEnv (HashMap.insert i e' (unTermEnv env))
 
-    newEnv :: Environment
+    newEnv :: TermEnv
     newEnv = HashMap.foldrWithKey f topEnv evaledDecls
 
   eval newEnv e
 
-evalCase :: Environment -> Expr -> HashMap Id Match -> Either Error Expr
+evalCase :: TermEnv -> Expr -> HashMap Id Match -> Either Error Expr
 evalCase topEnv expr alternatives = do
   res <- eval topEnv expr
   case res of
@@ -112,12 +112,12 @@ evalCase topEnv expr alternatives = do
               Just a ->
                 Right a
 
-          eval (Environment (HashMap.fromList xs) <> topEnv) newExp
+          eval (TermEnv (HashMap.fromList xs) <> topEnv) newExp
 
     _ ->
       panic ("Case not Construct: " <> show res)
 
-evalOp :: Environment -> Operation -> Either Error Expr
+evalOp :: TermEnv -> Operation -> Either Error Expr
 evalOp topEnv op =
   case op of
     Compare e1 e2 -> do
@@ -168,7 +168,7 @@ showIntBuiltin n =
         , expr
         ]
 
-evalInt :: Environment -> Expr -> Either Error Integer
+evalInt :: TermEnv -> Expr -> Either Error Integer
 evalInt env expr = do
   res <- eval env expr
   case res of
@@ -178,15 +178,15 @@ evalInt env expr = do
     _ ->
       panic "not an int"
 
-lookup :: Id -> Environment -> Either Error Expr
+lookup :: Id -> TermEnv -> Either Error Expr
 lookup id env =
-  case HashMap.lookup id (unEnvironment env) of
+  case HashMap.lookup id (unTermEnv env) of
     Just expr ->
       pure expr
 
     Nothing ->
       Left (NotFound id)
 
-addToEnv :: Environment -> Id -> Expr -> Environment -> Environment
+addToEnv :: TermEnv -> Id -> Expr -> TermEnv -> TermEnv
 addToEnv bound id expr env =
-  Environment (HashMap.insert id expr (unEnvironment (bound <> env)))
+  TermEnv (HashMap.insert id expr (unTermEnv (bound <> env)))
