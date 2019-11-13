@@ -9,9 +9,10 @@ import Bowtie.Lib.TypeScheme
 import Bowtie.Surface.AST
 import Control.Monad.State.Class
 
-import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Bowtie.Infer.Assumptions as Assumptions
+import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Bowtie.Lib.Builtin as Builtin
+import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import qualified Bowtie.Surface.Desugar as Desugar
 import qualified Data.List as List
 import qualified Data.Set as Set
@@ -74,38 +75,48 @@ bottomUpLet
   -> Expr
   -> m (Assumptions, Constraints, Type)
 bottomUpLet env ms bindings expr = do
-  -- TODO: need to punch out some ms
+  (aBody, cBody, tBody) <- bottomUp env monomorphized expr
+  (aNew, cNew) <- foldM f (aBody, cBody) bindingList
+  pure (deleteAssumptions aNew, cNew <> newC aNew, tBody)
+  where
+    -- Monomorphized variables are those introduced by Lam.
+    -- Remove the ones introduced by this Let.
+    monomorphized :: Set Id
+    monomorphized =
+      Set.difference ms (Set.fromList (OrderedMap.keys bindings))
 
-  let
     bindingList :: [(Id, (Expr, Type))]
     bindingList =
       List.reverse (Desugar.flattenLetBindings bindings)
 
-  (aBody, cBody, tBody) <- bottomUp env ms expr
-
-  let
     f :: (Assumptions, Constraints) -> (Id, (Expr, Type)) -> m (Assumptions, Constraints)
-    f (a2, c2) (id, (e, typeAnnotation)) = do
-      (a1, c1, t1) <- bottomUp env ms e
-
+    f (a2, c2) (_id, (e, typeAnnotation)) = do
+      (a1, c1, t1) <- bottomUp env monomorphized e
       let
-        newC :: Constraints
-        newC =
-          case Assumptions.lookup id (a1 <> a2) of -- todo: not sure if a1 <> a2 is right
+        annotation :: Constraints
+        annotation =
+          -- constrain the inferred type to be an instance of the explicit type annotation
+          Constraints.singleton (ImplicitInstanceConstraint t1 monomorphized typeAnnotation)
+      pure (a1 <> a2, c1 <> c2 <> annotation)
+
+    deleteAssumptions :: Assumptions -> Assumptions
+    deleteAssumptions as =
+      foldr Assumptions.delete as (OrderedMap.keys bindings)
+
+    newC :: Assumptions -> Constraints
+    newC aa =
+      let
+        g :: (Id, (Expr, Type)) -> Constraints -> Constraints
+        g (id, (_, typeAnnotation)) cc =
+          case Assumptions.lookup id aa of
             Nothing ->
-              mempty
+              cc
 
             Just ts ->
-              -- using typeAnnotation instead of t1 here because it's less general
-              Constraints (Set.map (\t -> ImplicitInstanceConstraint t ms typeAnnotation) ts)
-
-                <> Constraints.singleton (ImplicitInstanceConstraint t1 ms typeAnnotation)
-
-      -- note that we delete the id from BOTH a1 (in case of recursion) and a2
-      pure (Assumptions.delete id (a1 <> a2), c1 <> c2 <> newC)
-
-  (aNew, cNew) <- foldM f (aBody, cBody) bindingList
-  pure (aNew, cNew, tBody)
+              -- using typeAnnotation because it's less general than the inferred type
+              cc <> Constraints (Set.map (\t -> ImplicitInstanceConstraint t monomorphized typeAnnotation) ts)
+      in
+        foldr g mempty (OrderedMap.toList bindings)
 
 bottomUpCase
   :: forall m. MonadState Int m
@@ -114,26 +125,68 @@ bottomUpCase
   -> Expr
   -> [Alt]
   -> m (Assumptions, Constraints, Type)
-bottomUpCase env ms _expr alts = do -- TODO: use expr
+bottomUpCase env ms targetExpr alts = do
+  (targetA, targetC, targetT) <- bottomUp env ms targetExpr
+
+  processedAlts :: [(TypeScheme, [(Id, Type)], Expr)] <- for alts addConInfo
   let
+    inferAlt :: (TypeScheme, [(Id, Type)], Expr) -> m (TypeScheme, Assumptions, Constraints, Type)
+    inferAlt (scheme, bindings, expr) = do
+      let bindingIds = fmap fst bindings
+      (aa, cc, t) <- bottomUp env (ms <> Set.fromList bindingIds) expr
+      let
+        addC :: (Id, Type) -> Constraints -> Constraints
+        addC (bindingId, bindingType) oldC =
+          case Assumptions.lookup bindingId aa of
+            Nothing ->
+              oldC
+
+            Just ts ->
+              -- NOTE: should EqualityConstraint be an instance constraint?
+              oldC <> Constraints (Set.map (\tc -> EqualityConstraint tc bindingType) ts)
+
+        newC :: Constraints
+        newC =
+          foldr addC mempty bindings
+      pure (scheme, foldr Assumptions.delete aa bindingIds, cc <> newC, t)
+  res <- for processedAlts inferAlt
+
+  let
+    go
+      :: Type
+      -> (Assumptions, Constraints)
+      -> (TypeScheme, Assumptions, Constraints, Type)
+      -> m (Assumptions, Constraints)
+    go t (a, c) (_, aa, cc, tt) =
+      pure (a <> aa, c <> cc <> Constraints.singleton (EqualityConstraint tt t))
+  case res of
+    (ts, aaa, ccc, t) : xs -> do
+      (aZ, cZ) <- foldM (go t) (aaa, ccc) xs
+      pure
+        ( targetA <> aZ
+        , targetC <> Constraints.singleton (ExplicitInstanceConstraint targetT ts) <> cZ
+        , t
+        )
+
+    [] ->
+      panic "no cases"
+  where
     -- Eg, for
     --
-    -- case a of
-    --   Nothing ->
-    --     foo
+    --   Just b -> b + 1
     --
-    --   Just b ->
-    --     bar b
+    -- This would return
     --
-    -- The b in Just b would be a binding
-    -- The Just would be an id
-    addConInfo :: Alt -> m (Alt, [(Id, Type)])
-    addConInfo alt@(Alt conId bindings _) =
+    -- (TypeScheme 'a' 'Maybe')
+    -- [('b', 'a')]
+    -- (b + 1)
+    addConInfo :: Alt -> m (TypeScheme, [(Id, Type)], Expr)
+    addConInfo (Alt conId bindings expr) =
       case lookup conId env of
         Nothing ->
           panic "conid"
 
-        Just (TypeScheme _ typ) -> do
+        Just (TypeScheme polyVars typ) -> do
           let
             g :: (Type, [(Id, Type)]) -> Id -> m (Type, [(Id, Type)])
             g (t, xs) binding =
@@ -144,39 +197,5 @@ bottomUpCase env ms _expr alts = do -- TODO: use expr
                 _ ->
                   panic "whoops"
 
-          (_, args) <- foldM g (typ, mempty) bindings
-          pure (alt, args)
-  res :: [(Alt, [(Id, Type)])] <- for alts addConInfo
-
-  let
-    inferOne :: (Alt, [(Id, Type)]) -> m (Assumptions, Constraints, Type)
-    inferOne (Alt _ _ ex, xs) = do
-      let idds = fmap fst xs
-      (aa, cc, t) <- bottomUp env (ms <> Set.fromList idds) ex
-      let
-        neC :: (Id, Type) -> Constraints -> Constraints
-        neC (id, rt) oldc =
-          case Assumptions.lookup id aa of
-            Nothing ->
-              oldc
-
-            Just ts ->
-              oldc <> Constraints (Set.map (\tc -> EqualityConstraint tc rt) ts)
-
-        newC :: Constraints
-        newC =
-          foldr neC mempty xs
-      pure (foldr Assumptions.delete aa idds, cc <> newC, t)
-  res2 <- for res inferOne
-
-  let
-    go :: Type -> (Assumptions, Constraints) -> (Assumptions, Constraints, Type) -> m (Assumptions, Constraints)
-    go t (a, c) (aa, cc, tt) =
-      pure (a <> aa, c <> cc <> Constraints.singleton (EqualityConstraint tt t))
-  case res2 of
-    (aaa, ccc, t) : xs -> do
-      (aZ, cZ) <- foldM (go t) (aaa, ccc) xs
-      pure (aZ, cZ, t)
-
-    [] ->
-      panic "no cases"
+          (finalType, args) <- foldM g (typ, mempty) bindings
+          pure (TypeScheme polyVars finalType, args, expr)

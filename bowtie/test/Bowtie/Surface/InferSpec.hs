@@ -31,7 +31,7 @@ infer env expr =
 
 spec :: Spec
 spec = do
-  describe "algorithm W" do
+  describe "heeren-hage-unit-tests" do
     it "1" $
       infer mempty (IntLiteral 1) `shouldBe` Right (mempty, TConstructor (Id "Int"))
     it "abc" $

@@ -45,17 +45,13 @@ flattenLetBindings decls =
         Graph.AcyclicSCC (expr, id, _) ->
           (id, expr) : acc
 
+        -- A binding that refers to itself
         Graph.CyclicSCC [(expr, id, _)] ->
-          -- Was
-          --
-          --   panic "cyclic"
-          --
-          -- I believe this needs to be let through though so that
-          -- functions can refer to themselves.
           (id, expr) : acc
 
-        _ ->
-          panic "flattenLetBindings"
+        -- Mutually recursive bindings
+        Graph.CyclicSCC bindings ->
+          fmap (\(expr, id, _) -> (id, expr)) bindings <> acc
 
 desugar :: Expr -> Core.Expr
 desugar topExpr =

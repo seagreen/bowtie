@@ -7,4 +7,6 @@ result =
   case Just 1 of
     Just n -> n
     Nothing -> case Just Unit of
-                 Unit -> 0
+                 Nothing -> 2
+                 Just u -> 3 -- case u of    TODO
+                             --   Unit -> 3

@@ -1,0 +1,6 @@
+type Unit = Unit
+
+result : Int
+result =
+  case (\x. x) of
+    Unit -> 1

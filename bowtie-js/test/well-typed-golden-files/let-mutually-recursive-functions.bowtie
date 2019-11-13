@@ -24,18 +24,17 @@ function $compareBuiltin(a, b) {
   }
 }
 
-const _Just = _arg1 => ["Just", _arg1];
-const _Nothing = ["Nothing"];
-const _Unit = ["Unit"];
-const _result = (() => { const _$1 = _Just(1);
-if (_$1[0] === "Just") { const _n = _$1[1];
-return _n}
-if (_$1[0] === "Nothing") { return (() => { const _$1 = _Just(_Unit);
-if (_$1[0] === "Nothing") { return 2}
-if (_$1[0] === "Just") { const _u = _$1[1];
-return 3}
- else { throw "no match" }})()}
+const _False = ["False"];
+const _True = ["True"];
+const _bar = _b => (() => { const _$1 = _b;
+if (_$1[0] === "True") { return 1}
+if (_$1[0] === "False") { return _foo(_True)}
  else { throw "no match" }})();
+const _foo = _b => (() => { const _$1 = _b;
+if (_$1[0] === "True") { return _bar(_True)}
+if (_$1[0] === "False") { return _bar(_False)}
+ else { throw "no match" }})();
+const _result = _foo(_False);
 
 console.log(_result);
 */

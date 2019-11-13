@@ -50,8 +50,12 @@ data Expr
   | TextLiteral Text
   deriving (Eq, Show)
 
+-- | For example, consider @Just n -> n + 1@
 data Alt
-  = Alt Id [Id] Expr
+  = Alt
+      Id -- ^ This would be the @Just@
+      [Id] -- ^ This would be the first @n@
+      Expr -- ^ This would be the @n + 1@
   deriving (Eq, Show)
 
 instance FreeVars Expr where
