@@ -97,27 +97,27 @@ evalApp topEnv e1 e2 = do
 
 -- | Risks looping forever!
 evalLet :: TermEnv -> HashMap Id Expr -> Expr -> Either Error Expr
-evalLet topEnv decls body = do
-  evaledDecls <- traverse (eval topEnv) decls
+evalLet topEnv bindings body = do
+  evaledBindings <- traverse (eval topEnv) bindings
   let
-    update :: (Expr -> Expr) -> Expr -> Expr
-    update f expr =
+    addRecursiveReferences :: (Expr -> Expr) -> Expr -> Expr
+    addRecursiveReferences f expr =
       case expr of
         Lam (Just env) id e ->
           let
             fEnv :: TermEnv
             fEnv =
-              TermEnv (fmap f evaledDecls <> unTermEnv env)
+              TermEnv (fmap f evaledBindings <> unTermEnv env)
           in
             Lam (Just fEnv) id e
 
         _ -> expr
 
-    newDecls :: HashMap Id Expr
-    newDecls =
-      fmap (fix update) evaledDecls
+    selfReferencingBindings :: HashMap Id Expr
+    selfReferencingBindings =
+      fmap (fix addRecursiveReferences) evaledBindings
 
-  eval (TermEnv (newDecls <> unTermEnv topEnv)) body
+  eval (TermEnv (selfReferencingBindings <> unTermEnv topEnv)) body
 
 evalCase :: TermEnv -> Expr -> HashMap Id Match -> Either Error Expr
 evalCase topEnv expr alternatives = do
