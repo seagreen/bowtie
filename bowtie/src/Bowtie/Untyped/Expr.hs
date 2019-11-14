@@ -9,6 +9,11 @@ import qualified Data.Set as Set
 data Expr
   = Var Id
   | Lam (Maybe TermEnv) Id Expr
+    -- ^ @Maybe TermEnv@ is the lambda's lexical scope.
+    --
+    -- Invariant: this always starts as @Nothing@ and becomes @Just@
+    -- the first time the evaluator reaches the reaches the lambda.
+    -- This is the only time it changes throughout evaluation.
   | App Expr Expr
 
   | Let (HashMap Id Expr) Expr

@@ -51,6 +51,15 @@ eval topEnv topExpr =
 evalLam :: TermEnv -> Maybe TermEnv -> Id -> Expr -> Either Error Expr
 evalLam topEnv mEnv id expr =
   case mEnv of
+    -- If we've previously reached this lambda and already set its
+    -- lexical scope, do nothing.
+    Just _ ->
+      pure (Lam mEnv id expr)
+
+    -- If this is the first time we've reaches the lambda,
+    -- set it's environment to the lexical scope (minus variables
+    -- which aren't free in the lambda, which would just be extraneous
+    -- and clutter up debugging).
     Nothing -> do
       let
         free :: HashMap Id ()
@@ -66,9 +75,6 @@ evalLam topEnv mEnv id expr =
               free)
 
       pure (Lam (Just newEnv) id expr)
-
-    Just _ ->
-      pure (Lam mEnv id expr)
 
 evalApp :: TermEnv -> Expr -> Expr -> Either Error Expr
 evalApp topEnv e1 e2 = do
@@ -107,11 +113,11 @@ evalLet topEnv decls body = do
 
         _ -> expr
 
-    newEnv :: TermEnv
-    newEnv =
-      TermEnv (fmap (fix update) evaledDecls <> unTermEnv topEnv)
+    newDecls :: HashMap Id Expr
+    newDecls =
+      fmap (fix update) evaledDecls
 
-  eval newEnv body
+  eval (TermEnv (newDecls <> unTermEnv topEnv)) body
 
 evalCase :: TermEnv -> Expr -> HashMap Id Match -> Either Error Expr
 evalCase topEnv expr alternatives = do
