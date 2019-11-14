@@ -3,7 +3,7 @@
 --test "Main.main"
 --warnings
 --restart package.yaml
---restart example-app
---restart example-lib
+--restart ../example-app
+--restart ../example-lib
 
 # See ./bowtie/misc/ghcid-comment.txt for details
