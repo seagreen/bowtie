@@ -13,7 +13,7 @@ erase topExpr =
       Var i
 
     Core.Lam id _ e ->
-      Lam mempty id (erase e)
+      Lam Nothing id (erase e)
 
     Core.App e1 e2 ->
       App (erase e1) (erase e2)

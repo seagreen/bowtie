@@ -3,6 +3,7 @@ module Bowtie.Untyped.Eval where
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
 import Bowtie.Untyped.Expr
+import Data.Function (fix)
 import Safe.Exact (zipExactMay)
 
 import qualified Bowtie.Lib.Builtin as Builtin
@@ -26,8 +27,8 @@ eval topEnv topExpr =
     Var id ->
       lookup id topEnv
 
-    Lam env id expr ->
-      evalLam topEnv env id expr
+    Lam mEnv id expr ->
+      evalLam topEnv mEnv id expr
 
     App e1 e2 ->
       evalApp topEnv e1 e2
@@ -47,30 +48,40 @@ eval topEnv topExpr =
     PrimOp op ->
       evalOp topEnv op
 
-evalLam :: TermEnv -> TermEnv -> Id -> Expr -> Either Error Expr
-evalLam topEnv env id expr = do
-  let
-    free :: HashMap Id ()
-    free =
-      HashMap.fromList (fmap (\a -> (a, ())) (Set.toList (freeVars expr)))
+evalLam :: TermEnv -> Maybe TermEnv -> Id -> Expr -> Either Error Expr
+evalLam topEnv mEnv id expr =
+  case mEnv of
+    Nothing -> do
+      let
+        free :: HashMap Id ()
+        free =
+          HashMap.fromList (fmap (\a -> (a, ())) (Set.toList (freeVars expr)))
 
-    newEnv :: TermEnv
-    newEnv =
-      TermEnv
-        (HashMap.intersectionWith
-          const
-          (unTermEnv (env <> topEnv))
-          free)
+        newEnv :: TermEnv
+        newEnv =
+          TermEnv
+            (HashMap.intersectionWith
+              const
+              (unTermEnv topEnv)
+              free)
 
-  pure (Lam newEnv id expr)
+      pure (Lam (Just newEnv) id expr)
+
+    Just _ ->
+      pure (Lam mEnv id expr)
 
 evalApp :: TermEnv -> Expr -> Expr -> Either Error Expr
 evalApp topEnv e1 e2 = do
   f <- eval topEnv e1
   arg <- eval topEnv e2
   case f of
-    Lam env id lamExp -> do
-      eval (addToEnv env id arg topEnv) lamExp
+    Lam mEnv id lamExp -> do
+      case mEnv of
+        Nothing ->
+          panic "unexpected unscoped lambda"
+
+        Just env ->
+          eval (addToEnv id arg env) lamExp
 
     Construct tag exps -> do
       pure (Construct tag (exps <> [arg])) -- PERFORMANCE
@@ -78,18 +89,27 @@ evalApp topEnv e1 e2 = do
     _ ->
       Left AppNonLambda
 
+-- | Risks looping forever!
 evalLet :: TermEnv -> HashMap Id Expr -> Expr -> Either Error Expr
 evalLet topEnv decls body = do
   evaledDecls <- traverse (eval topEnv) decls
-
   let
-    f :: Id -> Expr -> TermEnv -> TermEnv
-    f i e' env =
-      TermEnv (HashMap.insert i e' (unTermEnv env))
+    update :: (Expr -> Expr) -> Expr -> Expr
+    update f expr =
+      case expr of
+        Lam (Just env) id e ->
+          let
+            fEnv :: TermEnv
+            fEnv =
+              TermEnv (fmap f evaledDecls <> unTermEnv env)
+          in
+            Lam (Just fEnv) id e
+
+        _ -> expr
 
     newEnv :: TermEnv
     newEnv =
-      HashMap.foldrWithKey f topEnv evaledDecls
+      TermEnv (fmap (fix update) evaledDecls <> unTermEnv topEnv)
 
   eval newEnv body
 
@@ -187,6 +207,6 @@ lookup id env =
     Nothing ->
       Left (NotFound id)
 
-addToEnv :: TermEnv -> Id -> Expr -> TermEnv -> TermEnv
-addToEnv bound id expr env =
-  TermEnv (HashMap.insert id expr (unTermEnv (bound <> env)))
+addToEnv :: Id -> Expr -> TermEnv -> TermEnv
+addToEnv id expr env =
+  TermEnv (HashMap.insert id expr (unTermEnv env))

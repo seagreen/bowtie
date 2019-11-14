@@ -13,8 +13,6 @@ import qualified Bowtie.Infer.Assumptions as Assumptions
 import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Bowtie.Lib.Builtin as Builtin
 import qualified Bowtie.Lib.OrderedMap as OrderedMap
-import qualified Bowtie.Surface.Desugar as Desugar
-import qualified Data.List as List
 import qualified Data.Set as Set
 
 bottomUp
@@ -87,7 +85,10 @@ bottomUpLet env ms bindings expr = do
 
     bindingList :: [(Id, (Expr, Type))]
     bindingList =
-      List.reverse (Desugar.flattenLetBindings bindings)
+      OrderedMap.toList bindings
+      -- TODO: cluster by cycle
+      --
+      -- List.reverse (Desugar.clusterLetBindings bindings)
 
     f :: (Assumptions, Constraints) -> (Id, (Expr, Type)) -> m (Assumptions, Constraints)
     f (a2, c2) (_id, (e, typeAnnotation)) = do

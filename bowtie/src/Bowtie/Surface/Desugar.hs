@@ -1,7 +1,7 @@
 module Bowtie.Surface.Desugar
   ( desugar
   , extractResult
-  , flattenLetBindings
+  , clusterLetBindings
   ) where
 
 import Bowtie.Lib.FreeVars
@@ -27,8 +27,8 @@ extractResult decls =
       Let (OrderedMap.delete (Id "result") decls) resultExpr
 
 -- | Used by both inferece and desugaring to core.
-flattenLetBindings :: OrderedMap Id (Expr, Type) -> [(Id, (Expr, Type))]
-flattenLetBindings decls =
+clusterLetBindings :: OrderedMap Id (Expr, Type) -> [[(Id, (Expr, Type))]]
+clusterLetBindings decls =
   foldr f mempty components
   where
     components :: [Graph.SCC ((Expr, Type), Id, [Id])]
@@ -39,19 +39,19 @@ flattenLetBindings decls =
         g (id, (expr, typ)) =
           ((expr, typ), id, Set.toList (freeVars expr))
 
-    f :: Graph.SCC ((Expr, Type), Id, ids) -> [(Id, (Expr, Type))] -> [(Id, (Expr, Type))]
+    f :: Graph.SCC ((Expr, Type), Id, ids) -> [[(Id, (Expr, Type))]] -> [[(Id, (Expr, Type))]]
     f grph acc =
       case grph of
         Graph.AcyclicSCC (expr, id, _) ->
-          (id, expr) : acc
+          [(id, expr)] : acc
 
         -- A binding that refers to itself
         Graph.CyclicSCC [(expr, id, _)] ->
-          (id, expr) : acc
+          [(id, expr)] : acc
 
         -- Mutually recursive bindings
         Graph.CyclicSCC bindings ->
-          fmap (\(expr, id, _) -> (id, expr)) bindings <> acc
+          fmap (\(expr, id, _) -> (id, expr)) bindings : acc
 
 desugar :: Expr -> Core.Expr
 desugar topExpr =
@@ -117,101 +117,109 @@ desugarText =
       in
         Core.App consCodePoint expr
 
--- This one isn't used for inference, but just going to core
+-- | This one isn't used for inference, but just going to core.
 desugarLet :: OrderedMap Id (Expr, Type) -> Expr -> Core.Expr
-desugarLet decls e =
+desugarLet decls body =
   foldr
-    (\(i, (e2, typ)) acc ->
+    addLet
+    (desugar body)
+    (clusterLetBindings decls)
+  where
+    addLet :: [(Id, (Expr, Type))] -> Core.Expr -> Core.Expr
+    addLet recursiveBindings acc =
       let
-        e3 :: Core.Expr
-        e3 =
-          -- Intercept builtins, and replace their current
-          -- definition (panic) with something else.
-          --
-          -- By doing this here we replace their definitions in the
-          -- source code with a new value.
-          -- The old way of doing it was to case on id in the Lam
-          -- case of desugar, which replaced the call sites instead of
-          -- the function definitions.
-          case i of
-            Id "compare" ->
-              let
-                a = Id "a"
-                b = Id "b"
-                aType = TVariable (Id "a")
-              in
-                Core.Lam
-                  a
-                  aType
-                  (Core.Lam
-                    b
-                    aType
-                    (Core.PrimOp
-                      (Core.Compare
-                        (Core.Var a)
-                        (Core.Var b))))
-
-            Id "plus" ->
-              let
-                a = Id "a"
-                b = Id "b"
-                iType = TConstructor Builtin.int
-              in
-                Core.Lam
-                  a
-                  iType
-                  (Core.Lam
-                    b
-                    iType
-                    (Core.PrimOp
-                      (Core.Plus
-                        (Core.Var a)
-                        (Core.Var b))))
-
-            Id "multiply" ->
-              let
-                a = Id "a"
-                b = Id "b"
-                iType = TConstructor Builtin.int
-              in
-                Core.Lam
-                  a
-                  iType
-                  (Core.Lam
-                    b
-                    iType
-                    (Core.PrimOp
-                      (Core.Multiply
-                        (Core.Var a)
-                        (Core.Var b))))
-
-            Id "showInt" ->
-              let
-                a = Id "a"
-                arrTyp = TArrow (TConstructor Builtin.int) (TConstructor Builtin.text)
-              in
-                Core.Lam
-                  a
-                  arrTyp
-                  (Core.PrimOp
-                    (Core.ShowInt
-                      (Core.Var a)))
-
-            Id "panic" ->
-              let
-                a = Id "a"
-                textType = TConstructor Builtin.text
-              in
-                Core.Lam
-                  a
-                  textType
-                  (Core.PrimOp
-                    (Core.Panic
-                      (Core.Var a)))
-
-            _ ->
-              desugar e2
+        f :: (Id, (Expr, Type)) -> (Id, (Core.Expr, Type))
+        f (id, (expr, typ)) =
+          (id, (desugarBinding id expr, typ))
       in
-        Core.Let (HashMap.singleton i (e3, typ)) acc)
-    (desugar e)
-    (flattenLetBindings decls)
+        Core.Let (HashMap.fromList (fmap f recursiveBindings)) acc
+
+-- | Internal. Used by 'desugarLet'.
+desugarBinding :: Id -> Expr -> Core.Expr
+desugarBinding id expr =
+  -- Intercept builtins, and replace their current
+  -- definition (panic) with something else.
+  --
+  -- By doing this here we replace their definitions in the
+  -- source code with a new value.
+  -- The old way of doing it was to case on id in the Lam
+  -- case of desugar, which replaced the call sites instead of
+  -- the function definitions.
+  case id of
+    Id "compare" ->
+      let
+        a = Id "a"
+        b = Id "b"
+        aType = TVariable (Id "a")
+      in
+        Core.Lam
+          a
+          aType
+          (Core.Lam
+            b
+            aType
+            (Core.PrimOp
+              (Core.Compare
+                (Core.Var a)
+                (Core.Var b))))
+
+    Id "plus" ->
+      let
+        a = Id "a"
+        b = Id "b"
+        iType = TConstructor Builtin.int
+      in
+        Core.Lam
+          a
+          iType
+          (Core.Lam
+            b
+            iType
+            (Core.PrimOp
+              (Core.Plus
+                (Core.Var a)
+                (Core.Var b))))
+
+    Id "multiply" ->
+      let
+        a = Id "a"
+        b = Id "b"
+        iType = TConstructor Builtin.int
+      in
+        Core.Lam
+          a
+          iType
+          (Core.Lam
+            b
+            iType
+            (Core.PrimOp
+              (Core.Multiply
+                (Core.Var a)
+                (Core.Var b))))
+
+    Id "showInt" ->
+      let
+        a = Id "a"
+        arrTyp = TArrow (TConstructor Builtin.int) (TConstructor Builtin.text)
+      in
+        Core.Lam
+          a
+          arrTyp
+          (Core.PrimOp
+            (Core.ShowInt
+              (Core.Var a)))
+
+    Id "panic" ->
+      let
+        a = Id "a"
+        textType = TConstructor Builtin.text
+      in
+        Core.Lam
+          a
+          textType
+          (Core.PrimOp
+            (Core.Panic
+              (Core.Var a)))
+
+    _ ->
+      desugar expr

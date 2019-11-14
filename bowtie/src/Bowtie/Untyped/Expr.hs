@@ -8,7 +8,7 @@ import qualified Data.Set as Set
 
 data Expr
   = Var Id
-  | Lam TermEnv Id Expr
+  | Lam (Maybe TermEnv) Id Expr
   | App Expr Expr
 
   | Let (HashMap Id Expr) Expr
