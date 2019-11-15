@@ -170,7 +170,7 @@ bottomUpCase env ms targetExpr alts = do
         )
 
     [] ->
-      panic "no cases"
+      panic "Case statement has no alternatives (this should have been caught by the parser)"
   where
     -- Eg, for
     --
@@ -185,7 +185,7 @@ bottomUpCase env ms targetExpr alts = do
     addConInfo (Alt conId bindings expr) =
       case lookup conId env of
         Nothing ->
-          panic "conid"
+          panic ("Constructor id not found: " <> unId conId)
 
         Just (TypeScheme polyVars typ) -> do
           let
@@ -196,7 +196,8 @@ bottomUpCase env ms targetExpr alts = do
                   pure (t2, (binding, targ) : xs)
 
                 _ ->
-                  panic "whoops"
+                  -- TODO: find another way to report this than panic:
+                  panic ("Alternative tries to bind too many variables: " <> unId conId)
 
           (finalType, args) <- foldM g (typ, mempty) bindings
           pure (TypeScheme polyVars finalType, args, expr)
