@@ -5,14 +5,12 @@ module Bowtie.Lib.Environment where
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
-
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set
 
 -- | (A type environment, not a term environment like appear elsewhere
 -- in the code)
-newtype Environment
-  = Environment { unEnvironment :: HashMap Id TypeScheme }
+newtype Environment = Environment {unEnvironment :: HashMap Id TypeScheme}
   deriving stock (Eq, Show)
   deriving newtype (Semigroup, Monoid)
 

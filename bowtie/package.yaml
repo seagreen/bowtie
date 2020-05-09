@@ -1,6 +1,6 @@
 name: bowtie
 default-extensions:
-  # NOTE: Keep in sync with ./doctest/DocTest.hs and ./.stylish-haskell.yaml
+  # NOTE: Keep in sync with ./doctest/DocTest.hs
 
   # Notable
 

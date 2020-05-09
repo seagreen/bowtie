@@ -2,7 +2,6 @@ module Bowtie.Blueprint where
 
 import Bowtie.Lib.Prelude
 import Bowtie.Type.AST (Type, TypeDeclaration)
-
 import qualified Bowtie.Type.Parse as Parse
 import qualified CMark
 import qualified Data.HashMap.Strict as HashMap
@@ -20,26 +19,22 @@ data Item
 
 blueprint :: Text -> Either Text Blueprint
 blueprint src = do
-  let
-    node :: CMark.Node
-    node =
-      CMark.commonmarkToNode mempty src
-
-    codeBlocks :: [Text]
-    codeBlocks =
-      extractCode node
+  let node :: CMark.Node
+      node =
+        CMark.commonmarkToNode mempty src
+      codeBlocks :: [Text]
+      codeBlocks =
+        extractCode node
 
   code <- case codeBlocks of
-            [] ->
-              Left "no code found in markdown file"
-
-            _ ->
-              pure (Text.intercalate "\n" codeBlocks)
+    [] ->
+      Left "no code found in markdown file"
+    _ ->
+      pure (Text.intercalate "\n" codeBlocks)
 
   case parseBlueprint code of
     Left e -> do
       Left (Text.pack (Mega.errorBundlePretty e))
-
     Right bp -> do
       pure bp
 
@@ -48,7 +43,6 @@ blueprintIO src =
   case blueprint src of
     Left e ->
       exitWithError e
-
     Right bp ->
       pure bp
 
@@ -58,17 +52,24 @@ conv items =
   where
     decls :: HashMap Id TypeDeclaration
     decls =
-      let xs = mapMaybe (\a -> case a of
-                                 Decl id def -> Just (id, def)
-                                 Func {} -> Nothing) items
-      in HashMap.fromList xs
-
+      let xs =
+            mapMaybe
+              ( \a -> case a of
+                  Decl id def -> Just (id, def)
+                  Func {} -> Nothing
+              )
+              items
+       in HashMap.fromList xs
     funcs :: HashMap Id Type
     funcs =
-      let xs = mapMaybe (\a -> case a of
-                                 Func id def -> Just (id, def)
-                                 Decl {} -> Nothing) items
-      in HashMap.fromList xs
+      let xs =
+            mapMaybe
+              ( \a -> case a of
+                  Func id def -> Just (id, def)
+                  Decl {} -> Nothing
+              )
+              items
+       in HashMap.fromList xs
 
 parseBlueprint :: Text -> Either (Mega.ParseErrorBundle Text Void) Blueprint
 parseBlueprint =
@@ -85,9 +86,10 @@ programTypesParser = do
 
 parseOne :: Parse.Parser Item
 parseOne =
-  Mega.label "parseOne"
-    (   Mega.try (fmap (uncurry Decl) Parse.typeDeclarationParser)
-    <|> Mega.try (fmap (uncurry Func) Parse.typeSignatureParser)
+  Mega.label
+    "parseOne"
+    ( Mega.try (fmap (uncurry Decl) Parse.typeDeclarationParser)
+        <|> Mega.try (fmap (uncurry Func) Parse.typeSignatureParser)
     )
 
 -- * Markdown
@@ -101,9 +103,7 @@ extractCode (CMark.Node _ nodeType nodes) =
       case nt of
         CMark.CODE_BLOCK _ t ->
           [t]
-
         CMark.CODE _ ->
           mempty
-
         _ ->
           mempty

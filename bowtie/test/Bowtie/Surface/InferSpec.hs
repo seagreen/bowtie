@@ -10,10 +10,9 @@ import Bowtie.Surface.AST
 import Bowtie.Surface.Desugar
 import Bowtie.Surface.Infer
 import Bowtie.Type.Kindcheck
+import qualified Data.HashMap.Strict as HashMap
 import Test.Hspec
 import Test.Shared
-
-import qualified Data.HashMap.Strict as HashMap
 
 unitEnv :: Environment
 unitEnv =
@@ -41,23 +40,19 @@ spec = do
         `shouldBe` Right (TConstructor (Id "Unit"))
     it "\\x. x 0" do
       fmap snd (infer mempty [quotedExpr|\x. x 0|])
-        `shouldBe`
-          Right (TArrow (TArrow (TConstructor (Id "Int")) (TVariable (Id "1"))) (TVariable (Id "1")))
+        `shouldBe` Right (TArrow (TArrow (TConstructor (Id "Int")) (TVariable (Id "1"))) (TVariable (Id "1")))
     it "(\\x. x) 0" do
       fmap snd (infer mempty [quotedExpr|(\x. x) 0|])
-        `shouldBe`
-          Right (TConstructor (Id "Int"))
+        `shouldBe` Right (TConstructor (Id "Int"))
 
     it "(\\x. x) (\\x. x)" do
       fmap snd (infer mempty [quotedExpr|(\x. x) (\x. x)|])
-        `shouldBe`
-          Right (TArrow (TVariable (Id "2")) (TVariable (Id "2")))
-
+        `shouldBe` Right (TArrow (TVariable (Id "2")) (TVariable (Id "2")))
 
     -- ==================================================
     it "let x = 1 in x" do
-      let
-        expr = [quotedExpr|
+      let expr =
+            [quotedExpr|
 let
   x : Int
   x =
@@ -65,15 +60,13 @@ let
 in
   x|]
       fmap snd (infer mempty expr)
-        `shouldBe`
-          Right
-            (TConstructor (Id "Int"))
-
+        `shouldBe` Right
+          (TConstructor (Id "Int"))
 
     -- ==================================================
     it "let x = 1 y = x in y" do
-      let
-        expr = [quotedExpr|
+      let expr =
+            [quotedExpr|
 let
   x : Int
   x =
@@ -85,14 +78,12 @@ let
 in
   y|]
       fmap snd (infer mempty expr)
-        `shouldBe`
-          Right (TConstructor (Id "Int"))
-
+        `shouldBe` Right (TConstructor (Id "Int"))
 
     -- ==================================================
     it "let id = \\x. x in id 1" do
-      let
-        expr = [quotedExpr|
+      let expr =
+            [quotedExpr|
 let
   id : Int -> Int
   id =
@@ -101,35 +92,30 @@ let
 in
   id 1|]
       fmap snd (infer mempty expr)
-        `shouldBe`
-          Right (TConstructor (Id "Int"))
-
+        `shouldBe` Right (TConstructor (Id "Int"))
 
     -- ==================================================
     it "case Unit of Unit -> 0" do
-      let
-        expr = [quotedExpr|
+      let expr =
+            [quotedExpr|
 case Unit of
   Unit -> 0|]
       fmap snd (infer unitEnv expr)
-        `shouldBe`
-          Right (TConstructor (Id "Int"))
-
+        `shouldBe` Right (TConstructor (Id "Int"))
 
     --------------------------------------------------
     -- Switching from Expr to Program
     --------------------------------------------------
 
-
     -- ==================================================
     it "types a particular situation correctly" do
-      let
-        -- This is a close to minimal test for a particular bug--
-        -- Reducing it more by even changing type variable names prevents
-        -- it from triggering.
-        --
-        -- See NOTE_ZK9
-        program = [quotedAST|
+      let -- This is a close to minimal test for a particular bug--
+          -- Reducing it more by even changing type variable names prevents
+          -- it from triggering.
+          --
+          -- See NOTE_ZK9
+          program =
+            [quotedAST|
 type Maybe b = Just b | Nothing
 
 type List a = Cons a (List a) | Nil
@@ -156,11 +142,7 @@ result =
   0
 |]
       inferProgram program
-        `shouldBe`
-          Right (TConstructor (Id "Int"))
-
-
-
+        `shouldBe` Right (TConstructor (Id "Int"))
 
 --     it "doesn't allow overly polymorphic type signatures" do
 --       let
@@ -169,7 +151,8 @@ result =
 -- result : Maybe a
 -- result =
 --   Just 0
--- |]
---       inferProgram program
---         `shouldBe`
---           Right (Substitution (HashMap.fromList [(Id "a",TConstructor (Id "Int"))]),TConstructor (Id "Int"))
+
+-- | ]
+--        inferProgram program
+--          `shouldBe`
+--            Right (Substitution (HashMap.fromList [(Id "a",TConstructor (Id "Int"))]),TConstructor (Id "Int"))

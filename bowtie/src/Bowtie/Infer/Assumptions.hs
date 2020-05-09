@@ -1,15 +1,15 @@
 module Bowtie.Infer.Assumptions
-  ( Assumptions
-  , singleton
-  , lookup
-  , delete
-  , keys
-  , toList
-  ) where
+  ( Assumptions,
+    singleton,
+    lookup,
+    delete,
+    keys,
+    toList,
+  )
+where
 
 import Bowtie.Lib.Prelude hiding (toList)
 import Bowtie.Type.AST
-
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set
 

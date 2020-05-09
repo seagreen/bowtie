@@ -1,11 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Bowtie.Example
-  ( wellTyped
-  , illTyped
-  , validSyntax
-  , invalidSyntax
-  ) where
+  ( wellTyped,
+    illTyped,
+    validSyntax,
+    invalidSyntax,
+  )
+where
 
 import Data.ByteString (ByteString)
 import Data.FileEmbed
@@ -40,13 +41,12 @@ invalidSyntax =
 process :: [(FilePath, ByteString)] -> [(FilePath, Text)]
 process =
   -- Not sure if sorting is necessary-- will file-embed always sort its results?
-  sortOn fst . (fmap.fmap) f
+  sortOn fst . (fmap . fmap) f
   where
     f :: ByteString -> Text
     f bts =
       case decodeUtf8' bts of
         Left e ->
           error ("Invalid example: " <> show e)
-
         Right t ->
           t

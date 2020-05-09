@@ -1,17 +1,16 @@
 module Main where
 
-import Bowtie.Lib.Prelude
-import System.Directory
-import System.FilePath (takeExtension, (</>))
-import Test.Hspec
-
 import qualified Bowtie.Example
 import qualified Bowtie.Interpret as Interpret
+import Bowtie.Lib.Prelude
 import qualified Bowtie.Surface.InferSpec
 import qualified Bowtie.Surface.Parse as Surface.Parse
 import qualified Data.List as List
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
+import System.Directory
+import System.FilePath ((</>), takeExtension)
+import Test.Hspec
 import qualified Text.Megaparsec as Mega
 
 main :: IO ()
@@ -47,7 +46,6 @@ main = do
         case Interpret.interpretProgram libFiles (path, appSource) of
           Left e ->
             expectationFailure (Text.unpack (Interpret.prettyError e))
-
           Right _ ->
             pure ()
 
@@ -63,7 +61,6 @@ runInvalidSyntax (name, src) =
         TIO.writeFile
           ("test" </> "invalid-syntax-examples" </> name)
           (Text.pack (Mega.errorBundlePretty e))
-
       Right _ ->
         expectationFailure "Unexpected Right"
 
@@ -76,25 +73,21 @@ runIllTyped (name, src) =
           Interpret.ParseError _ ->
             expectationFailure
               ("Unexpected parse error: " <> Text.unpack (Interpret.prettyError err))
-
           Interpret.NameClash conflict ->
             expectationFailure
               ("Unexpected name clash error : " <> Text.unpack (show conflict))
-
           Interpret.TypeError e ->
             TIO.writeFile
               ("test" </> "ill-typed-examples" </> name)
               (show e)
-
       Right _ ->
         expectationFailure "Unexpected Right"
 
 getAppExamples :: IO [FilePath]
 getAppExamples = do
-  appPaths <- (fmap.fmap) ("../example-app" </>) (listDirectory "../example-app")
-  let
-    (langs, other) =
-      List.partition (\path -> takeExtension path == ".bowtie") appPaths
+  appPaths <- (fmap . fmap) ("../example-app" </>) (listDirectory "../example-app")
+  let (langs, other) =
+        List.partition (\path -> takeExtension path == ".bowtie") appPaths
 
   when
     (other /= mempty)

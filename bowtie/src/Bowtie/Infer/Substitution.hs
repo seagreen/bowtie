@@ -4,7 +4,6 @@ import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Surface.AST
-
 import qualified Data.HashMap.Strict as HashMap
 
 -- tapl 318
@@ -35,28 +34,21 @@ substExpr sub expr =
   case expr of
     Var _ ->
       expr
-
     Lam id mType body ->
       Lam
         id
         (fmap (substType sub) mType)
         (substExpr sub body)
-
     App e1 e2 ->
       App (substExpr sub e1) (substExpr sub e2)
-
     Let bindings body ->
-      Let (fmap (\(a,b) -> (substExpr sub a, substType sub b)) bindings) (substExpr sub body)
-
+      Let (fmap (\(a, b) -> (substExpr sub a, substType sub b)) bindings) (substExpr sub body)
     Construct _ ->
       expr
-
     Case caseExpr alts ->
       Case (substExpr sub caseExpr) (fmap (substAlt sub) alts)
-
     IntLiteral _ ->
       expr
-
     TextLiteral _ ->
       expr
 
@@ -75,28 +67,21 @@ substType sub@(Substitution subst) typ =
       case HashMap.lookup id subst of
         Nothing ->
           typ
-
         Just new ->
           new
-
     TConstructor id ->
       case HashMap.lookup id subst of
         Nothing ->
           typ
-
         Just _ ->
           panic "subst tcon"
-
     TArrow t1 t2 ->
       TArrow (substType sub t1) (substType sub t2)
-
     TypeApp t1 t2 ->
       TypeApp (substType sub t1) (substType sub t2)
 
 substTypeScheme :: Substitution -> TypeScheme -> TypeScheme
 substTypeScheme (Substitution subHm) (TypeScheme polyVars t) =
-  let
-    -- Algorithm W Step by Step by Martin G.
-    sub2 = Substitution (foldr HashMap.delete subHm polyVars)
-  in
-    TypeScheme polyVars (substType sub2 t)
+  let -- Algorithm W Step by Step by Martin G.
+      sub2 = Substitution (foldr HashMap.delete subHm polyVars)
+   in TypeScheme polyVars (substType sub2 t)

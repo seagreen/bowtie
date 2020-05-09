@@ -1,11 +1,10 @@
 module Main where
 
+import qualified Bowtie.Interpret as Interpret
 import Bowtie.JS
 import Bowtie.Lib.Prelude
-import Options.Applicative
-
-import qualified Bowtie.Interpret as Interpret
 import qualified Data.Text.IO as TIO
+import Options.Applicative
 
 main :: IO ()
 main = do
@@ -15,7 +14,6 @@ main = do
   case Interpret.sourcesToCore libFiles (name, appSource) of
     Left e ->
       exitWithError (Interpret.prettyError e)
-
     Right (env, coreExpr) ->
       TIO.putStrLn (transpileCore env coreExpr)
 
@@ -32,7 +30,8 @@ configParser =
     parser :: Parser Config
     parser =
       Config
-        <$> argument str
-            (  metavar "FILE"
-            <> help "Path to source file"
-            )
+        <$> argument
+          str
+          ( metavar "FILE"
+              <> help "Path to source file"
+          )

@@ -2,30 +2,36 @@
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 module Bowtie.Surface.Parse
-   ( parse
-   , exprParser
-
-   -- | For test and REPL use
-   , dirtyParseExpr
-   , dirtyParseAST
-   ) where
+  ( parse,
+    exprParser,
+    -- | For test and REPL use
+    dirtyParseExpr,
+    dirtyParseAST,
+  )
+where
 
 import Bowtie.Lib.OrderedMap (OrderedMap)
+import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import Bowtie.Lib.Prelude hiding (many, some)
 import Bowtie.Surface.AST
 import Bowtie.Type.Parse
-  (Parser, ParserErrorBundle, lexeme, lowerIdParser, parseTest,
-  spacesOrNewlines, symbol, upperIdParser)
-import Control.Applicative.Combinators.NonEmpty
-import Text.Megaparsec hiding (parse, parseTest, some)
-
-import qualified Bowtie.Lib.OrderedMap as OrderedMap
+  ( Parser,
+    ParserErrorBundle,
+    lexeme,
+    lowerIdParser,
+    parseTest,
+    spacesOrNewlines,
+    symbol,
+    upperIdParser,
+  )
 import qualified Bowtie.Type.Parse as Type
+import Control.Applicative.Combinators.NonEmpty
 import qualified Data.Char as Char
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Text as Text
-import qualified Prelude
+import Text.Megaparsec hiding (parse, parseTest, some)
 import qualified Text.Megaparsec.Char.Lexer as Lexer
+import qualified Prelude
 
 parse :: FilePath -> Text -> Either ParserErrorBundle AST
 parse path =
@@ -38,7 +44,6 @@ parse path =
 -- ^^ TODO: OrderedMaps do not do well with Show
 sourceParser :: Parser AST
 sourceParser = do
-
   -- This was my other attempt at this,
   -- but the "try" made for terrible errors
   --
@@ -63,18 +68,17 @@ sourceParser = do
       case appendAST s1 s2 of
         Left (TypeIdConflict id) ->
           fail ("Duplicate type definitions found in module with name " <> Text.unpack (unId id))
-
         Left (TermIdConflict id) ->
           fail ("Duplicate type definitions found in module with name " <> Text.unpack (unId id))
-
         Right a ->
           pure a
 
 declarationParser :: Parser AST
 declarationParser =
-  label "declarationParser"
-    (   fmap (\(i,d) -> AST (OrderedMap.singleton i d) OrderedMap.empty) Type.typeDeclarationParser
-    <|> fmap (\(i,e,typ) -> AST OrderedMap.empty (OrderedMap.singleton i (e, typ))) bindingParser
+  label
+    "declarationParser"
+    ( fmap (\(i, d) -> AST (OrderedMap.singleton i d) OrderedMap.empty) Type.typeDeclarationParser
+        <|> fmap (\(i, e, typ) -> AST OrderedMap.empty (OrderedMap.singleton i (e, typ))) bindingParser
     )
 
 -- |
@@ -107,11 +111,12 @@ bindingBodyParser = do
 
 exprParser :: Parser Expr
 exprParser =
-  label "exprParser"
-    (   lamParser
-    <|> letParser
-    <|> caseParser
-    <|> listToAppParser
+  label
+    "exprParser"
+    ( lamParser
+        <|> letParser
+        <|> caseParser
+        <|> listToAppParser
     )
 
 -- |
@@ -150,19 +155,15 @@ letParser = do
     p = do
       symbol "let"
       pure (Lexer.IndentSome Nothing g bindingParser)
-
     g :: [(Id, Expr, Type)] -> Parser (OrderedMap Id (Expr, Type))
     g decls =
-      let
-        f :: (Id, Expr, Type) -> (Id, (Expr, Type))
-        f (i,e,typ) = (i, (e, typ))
-      in
-        case OrderedMap.fromList (fmap f decls) of
-          Left id ->
-            fail ("Duplicate identifiers found in let expression with id: " <> Text.unpack (unId id))
-
-          Right a ->
-            pure a
+      let f :: (Id, Expr, Type) -> (Id, (Expr, Type))
+          f (i, e, typ) = (i, (e, typ))
+       in case OrderedMap.fromList (fmap f decls) of
+            Left id ->
+              fail ("Duplicate identifiers found in let expression with id: " <> Text.unpack (unId id))
+            Right a ->
+              pure a
 
 -- |
 -- >>> parseTest caseParser "case a of\n  True -> 1\n\n  False -> 2"
@@ -210,12 +211,13 @@ listToAppParser = do
 
 itemParser :: Parser Expr
 itemParser =
-  label "itemParser"
-    (   Type.parens exprParser
-    <|> varParser
-    <|> conParser
-    <|> intParser
-    <|> textParser
+  label
+    "itemParser"
+    ( Type.parens exprParser
+        <|> varParser
+        <|> conParser
+        <|> intParser
+        <|> textParser
     )
 
 varParser :: Parser Expr
@@ -243,7 +245,6 @@ intParser = do
       case mNegate of
         Nothing ->
           digits
-
         Just _ ->
           '-' : digits
 
@@ -265,7 +266,6 @@ dirtyParseExpr src =
   case Type.runParser exprParser "<source_code>" src of
     Left e ->
       panic (Text.pack (errorBundlePretty e))
-
     Right expr ->
       expr
 
@@ -275,6 +275,5 @@ dirtyParseAST src =
   case parse "<source_code>" src of
     Left e ->
       panic (Text.pack (errorBundlePretty e))
-
     Right program ->
       program

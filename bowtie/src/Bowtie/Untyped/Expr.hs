@@ -2,25 +2,21 @@ module Bowtie.Untyped.Expr where
 
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
-
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set
 
 data Expr
   = Var Id
-  | Lam (Maybe TermEnv) Id Expr
-    -- ^ @Maybe TermEnv@ is the lambda's lexical scope.
+  | -- | @Maybe TermEnv@ is the lambda's lexical scope.
     --
     -- Invariant: this always starts as @Nothing@ and becomes @Just@
     -- the first time the evaluator reaches the reaches the lambda.
     -- This is the only time it changes throughout evaluation.
+    Lam (Maybe TermEnv) Id Expr
   | App Expr Expr
-
   | Let (HashMap Id Expr) Expr
-
   | Construct Id [Expr]
   | Case Expr (HashMap Id Match)
-
   | PrimInt Integer
   | PrimOp Operation
   deriving (Eq, Show, Generic, NFData)
@@ -31,47 +27,34 @@ instance FreeVars Expr where
     case topExpr of
       Var id ->
         Set.singleton id
-
       Lam _env id expr ->
         Set.delete id (freeVars expr)
-
       App e1 e2 ->
         freeVars e1 <> freeVars e2
-
       Let bindings expr ->
-        let
-          boundIds :: Set Id
-          boundIds =
-            Set.fromList (HashMap.keys bindings)
-        in
-          Set.difference
-            (foldMap freeVars bindings <> freeVars expr)
-            boundIds
-
+        let boundIds :: Set Id
+            boundIds =
+              Set.fromList (HashMap.keys bindings)
+         in Set.difference
+              (foldMap freeVars bindings <> freeVars expr)
+              boundIds
       Construct id exprs ->
         Set.singleton id <> foldMap freeVars exprs -- TODO: remove Set.singleton?
-
       Case expr bindingsMap ->
         freeVars expr <> foldMap freeVars bindingsMap
-
       PrimInt _ ->
         mempty
-
       -- easy to forget there can be free variables in an Op
       PrimOp op ->
         case op of
           Compare e1 e2 ->
             freeVars e1 <> freeVars e2
-
           Plus e1 e2 ->
             freeVars e1 <> freeVars e2
-
           Multiply e1 e2 ->
             freeVars e1 <> freeVars e2
-
           ShowInt e ->
             freeVars e
-
           Panic e ->
             freeVars e
 
@@ -92,8 +75,7 @@ data Operation
   | Panic Expr
   deriving (Eq, Show, Generic, NFData)
 
-newtype TermEnv
-  = TermEnv { unTermEnv :: HashMap Id Expr }
+newtype TermEnv = TermEnv {unTermEnv :: HashMap Id Expr}
   deriving stock (Eq, Show, Generic)
   deriving newtype (Semigroup, Monoid)
   deriving anyclass (NFData)

@@ -3,11 +3,10 @@
 module Bowtie.Visualize.GraphConstraints where
 
 import Bowtie.Infer.Constraints
+import qualified Bowtie.Infer.Constraints as Constraints
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST
-
-import qualified Bowtie.Infer.Constraints as Constraints
 import qualified Data.GraphViz as GV
 import qualified Data.GraphViz.Attributes as Attributes
 import qualified Data.GraphViz.Printing as GP
@@ -27,29 +26,24 @@ prettyType t =
   case t of
     TArrow t1 t2 ->
       prettyType t1 <> " -> " <> prettyType t2
-
     TConstructor (Id id) ->
       id
-
     TVariable (Id id) ->
       id
-
     TypeApp _ _ ->
       "TypeApp"
 
-ff :: Set Constraint -> [(TypeScheme,TypeScheme,Constraint)]
+ff :: Set Constraint -> [(TypeScheme, TypeScheme, Constraint)]
 ff cs =
   fmap f (Set.toList cs)
   where
-    f :: Constraint -> (TypeScheme,TypeScheme,Constraint)
+    f :: Constraint -> (TypeScheme, TypeScheme, Constraint)
     f c =
       case c of
         EqualityConstraint t1 t2 ->
           (TypeScheme mempty t1, TypeScheme mempty t2, c)
-
         ExplicitInstanceConstraint t ts ->
           (TypeScheme mempty t, ts, c)
-
         ImplicitInstanceConstraint t1 _ t2 ->
           (TypeScheme mempty t1, TypeScheme mempty t2, c)
 
@@ -60,37 +54,31 @@ graphConstraints cst@(Constraints cs) =
     dot :: GP.DotCode
     dot =
       GP.toDot graphInDotFormat
-
     graphInDotFormat :: GV.DotGraph TypeScheme
     graphInDotFormat =
       GV.graphElemsToDot params nodes edges
-
-    nodes :: [(TypeScheme,Text)]
+    nodes :: [(TypeScheme, Text)]
     nodes =
       fmap (\c -> (c, "todo")) (Set.toList (Constraints.toTypeSchemes cst))
-
-    edges :: [(TypeScheme,TypeScheme,Constraint)]
+    edges :: [(TypeScheme, TypeScheme, Constraint)]
     edges =
       ff cs
 
 params :: GV.GraphvizParams TypeScheme Text Constraint () Text
 params =
   GV.nonClusteredParams
-    { GV.fmtNode = nodeFmt
-    , GV.fmtEdge = edgeFmt
+    { GV.fmtNode = nodeFmt,
+      GV.fmtEdge = edgeFmt
     }
   where
-    nodeFmt :: (TypeScheme,Text) -> [GV.Attribute]
-    nodeFmt (_,_) = [] -- [GV.toLabel l]
-
+    nodeFmt :: (TypeScheme, Text) -> [GV.Attribute]
+    nodeFmt (_, _) = [] -- [GV.toLabel l]
     edgeFmt :: (TypeScheme, TypeScheme, Constraint) -> GV.Attributes
-    edgeFmt (_,_,c) =
+    edgeFmt (_, _, c) =
       case c of
-        EqualityConstraint{} ->
+        EqualityConstraint {} ->
           [Attributes.edgeEnds Attributes.NoDir]
-
-        ExplicitInstanceConstraint{} ->
+        ExplicitInstanceConstraint {} ->
           [Attributes.color Attributes.Yellow]
-
-        ImplicitInstanceConstraint{} ->
+        ImplicitInstanceConstraint {} ->
           [Attributes.color Attributes.Red]

@@ -3,12 +3,12 @@ module Bowtie.Lib.TypeScheme where
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
-
 import qualified Data.Set as Set
 
+-- | Quantitied over the variables in @Set Id@.
 data TypeScheme
   = TypeScheme
-      (Set Id) -- ^ Quantitied over these variables
+      (Set Id)
       Type
   deriving (Eq, Ord, Show)
 

@@ -1,21 +1,22 @@
 module Bowtie.Surface.AST
-  ( module Bowtie.Surface.AST
-  , module Bowtie.Type.AST
-  ) where
+  ( module Bowtie.Surface.AST,
+    module Bowtie.Type.AST,
+  )
+where
 
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.OrderedMap (OrderedMap)
+import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import Bowtie.Lib.Prelude
 import Bowtie.Type.AST
-
-import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Set as Set
 
 data AST = AST
-  { astTypes :: OrderedMap Id TypeDeclaration
-  , astTerms :: OrderedMap Id (Expr, Type)
-  } deriving stock (Eq, Show)
+  { astTypes :: OrderedMap Id TypeDeclaration,
+    astTerms :: OrderedMap Id (Expr, Type)
+  }
+  deriving stock (Eq, Show)
 
 emptyAST :: AST
 emptyAST =
@@ -40,22 +41,20 @@ data Expr
   = Var Id
   | Lam Id (Maybe Type) Expr
   | App Expr Expr
-
   | Let (OrderedMap Id (Expr, Type)) Expr
-
   | Construct Id
   | Case Expr [Alt]
-
   | IntLiteral Integer
   | TextLiteral Text
   deriving (Eq, Show)
 
--- | For example, consider @Just n -> n + 1@
+-- | For example, consider @Just n -> n + 1@.
+--
+-- The first argument is the @Just@.
+-- The second argument is the first @n@.
+-- The third argument is the @n + 1@.
 data Alt
-  = Alt
-      Id -- ^ This would be the @Just@
-      [Id] -- ^ This would be the first @n@
-      Expr -- ^ This would be the @n + 1@
+  = Alt Id [Id] Expr
   deriving (Eq, Show)
 
 instance FreeVars Expr where
@@ -64,26 +63,19 @@ instance FreeVars Expr where
     case topExpr of
       Var i ->
         Set.singleton i
-
       Lam i _ e ->
         Set.delete i (freeVars e)
-
       App e1 e2 ->
         freeVars e1 <> freeVars e2
-
       Let decls expr ->
         (freeVars expr <> foldMap freeVars (fmap fst (OrderedMap.elems decls)))
           `Set.difference` Set.fromList (OrderedMap.keys decls) -- NOTE: careful, this part isn't tested
-
       Construct _ ->
         mempty
-
       Case e alts ->
         freeVars e <> foldMap freeVars alts
-
       IntLiteral _ ->
         mempty
-
       TextLiteral _ ->
         mempty
 

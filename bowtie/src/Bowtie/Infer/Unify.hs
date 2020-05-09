@@ -4,7 +4,6 @@ import Bowtie.Infer.Substitution
 import Bowtie.Lib.FreeVars
 import Bowtie.Lib.Prelude
 import Bowtie.Surface.AST
-
 import qualified Data.Set as Set
 
 data UnifyError
@@ -15,7 +14,6 @@ data UnifyError
 -- | Implementation based on <doc.md#AlgorithmWStepByStep>.
 unify :: Type -> Type -> Either UnifyError Substitution
 unify t1 t2 =
-
   -- For example consider:
   --
   --   (\x -> x) 5
@@ -45,35 +43,25 @@ unify t1 t2 =
   -- followed by Int for 0.
 
   if t1 == t2
-    then
-      Right mempty
-
-    else
-      case (t1, t2) of
-        (TVariable id, _) ->
-          unifyVariable id t2
-
-        (_, TVariable id) ->
-          unifyVariable id t1
-
-        (TArrow arg1 res1, TArrow arg2 res2) -> do
-          s1 <- unify arg1 arg2
-          s2 <- unify (substType s1 res1) (substType s1 res2)
-          Right (s1 <> s2)
-
-        (TypeApp a1 b1, TypeApp a2 b2) -> do
-          s1 <- unify a1 a2
-          s2 <- unify (substType s1 b1) (substType s1 b2)
-          Right (s1 <> s2)
-
-        _ ->
-          Left (TypeMismatch t1 t2)
+    then Right mempty
+    else case (t1, t2) of
+      (TVariable id, _) ->
+        unifyVariable id t2
+      (_, TVariable id) ->
+        unifyVariable id t1
+      (TArrow arg1 res1, TArrow arg2 res2) -> do
+        s1 <- unify arg1 arg2
+        s2 <- unify (substType s1 res1) (substType s1 res2)
+        Right (s1 <> s2)
+      (TypeApp a1 b1, TypeApp a2 b2) -> do
+        s1 <- unify a1 a2
+        s2 <- unify (substType s1 b1) (substType s1 b2)
+        Right (s1 <> s2)
+      _ ->
+        Left (TypeMismatch t1 t2)
   where
     unifyVariable :: Id -> Type -> Either UnifyError Substitution
     unifyVariable id typ =
       if Set.member id (freeVars typ)
-        then
-          Left (IdOccursInType id typ)
-
-        else
-          Right (singleSub id typ)
+        then Left (IdOccursInType id typ)
+        else Right (singleSub id typ)

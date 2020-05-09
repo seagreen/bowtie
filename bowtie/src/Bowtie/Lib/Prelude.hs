@@ -1,12 +1,16 @@
 {-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
+
 -- Normally we use hlint to enforce importing Data.Text as Text,
 -- but here we want to import it as X:
 {-# HLINT ignore "Avoid restricted qualification" #-}
 
 module Bowtie.Lib.Prelude
-  ( module Bowtie.Lib.Prelude
-  , module X
-  ) where
+  ( module Bowtie.Lib.Prelude,
+    module X,
+  )
+where
+
+{- ORMOLU_DISABLE -}
 
 -- Re-exports:
 
@@ -48,13 +52,15 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
 import qualified Prelude
 
+{- ORMOLU_ENABLE -}
+
 newtype Id
   = Id Text
   deriving stock (Eq, Ord, Show, Generic)
   deriving newtype (Hashable)
   deriving anyclass (NFData)
 
--- | Note making this a field of @id@ since then it would
+-- | Not making this a field of @id@ since then it would
 -- be printed every time an @Id@ is shown.
 unId :: Id -> Text
 unId (Id t) =
@@ -92,13 +98,13 @@ hashmapToSortedList =
 
 readDirectoryFiles :: FilePath -> IO (HashMap FilePath Text)
 readDirectoryFiles dir = do
-  paths <- (fmap.fmap) (\p -> dir </> p) (listDirectory dir)
+  paths <- (fmap . fmap) (\p -> dir </> p) (listDirectory dir)
   fmap HashMap.fromList (for paths f)
-    where
-      f :: FilePath -> IO (FilePath, Text)
-      f path = do
-        t <- TIO.readFile path
-        pure (path, t)
+  where
+    f :: FilePath -> IO (FilePath, Text)
+    f path = do
+      t <- TIO.readFile path
+      pure (path, t)
 
 charToCodepoint :: Char -> Natural
 charToCodepoint =

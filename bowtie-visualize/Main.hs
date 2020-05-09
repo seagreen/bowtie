@@ -2,9 +2,8 @@ module Main (main) where
 
 import Bowtie.Lib.Prelude
 import Bowtie.Visualize
-import Options.Applicative
-
 import qualified Data.Text.IO as TIO
+import Options.Applicative
 
 main :: IO ()
 main = do
@@ -27,7 +26,8 @@ configParser =
     parser :: Parser Config
     parser =
       Config
-        <$> argument str
-            (  metavar "FILE"
-            <> help "Path to source file"
-            )
+        <$> argument
+          str
+          ( metavar "FILE"
+              <> help "Path to source file"
+          )

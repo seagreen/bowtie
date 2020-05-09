@@ -1,35 +1,40 @@
 module Bowtie.Type.Parse
-  ( Parser
-  , ParserErrorBundle
-  , typeDeclarationParser
-  , typeSignatureParser
-  , typeParser
-  , lowerIdParser
-  , upperIdParser
-
-  -- | Helpers
-  , lexeme
-  , symbol
-  , spacesOrNewlines
-  , parens
-  , runParser
-  , parseTest
-  ) where
-
-import Bowtie.Lib.Prelude hiding (many, some)
-import Bowtie.Type.AST
-import Control.Applicative.Combinators.NonEmpty
+  ( Parser,
+    ParserErrorBundle,
+    typeDeclarationParser,
+    typeSignatureParser,
+    typeParser,
+    lowerIdParser,
+    upperIdParser,
+    -- | Helpers
+    lexeme,
+    symbol,
+    spacesOrNewlines,
+    parens,
+    runParser,
+    parseTest,
+  )
+where
 
 -- Hide @sepBy1@ because we're using the one from
 -- @Control.Applicative.Combinators.NonEmpty@
 -- that returns a @NonEmpty@ list instead.
-import Text.Megaparsec hiding
-  (State, Token, parse, parseTest, runParser, sepBy1)
 
 import qualified Bowtie.Lib.OrderedMap as OrderedMap
+import Bowtie.Lib.Prelude hiding (many, some)
+import Bowtie.Type.AST
+import Control.Applicative.Combinators.NonEmpty
 import qualified Data.Char as Char
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as Text
+import Text.Megaparsec hiding
+  ( State,
+    Token,
+    parse,
+    parseTest,
+    runParser,
+    sepBy1,
+  )
 import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Char.Lexer as Lexer
 
@@ -70,7 +75,6 @@ typeDeclarationParser = do
   case OrderedMap.fromList constructors of
     Left id ->
       fail ("Duplicate constructors found in type declaration with id: " <> Text.unpack (unId id))
-
     Right constructorMap ->
       pure (typeId, TypeDeclaration typeArgs constructorMap)
 
@@ -97,9 +101,10 @@ constructorParser = do
 -- TVariable (Id "a")
 constructorArgParser :: Parser Type
 constructorArgParser =
-  label "constructorArgParser"
-    (   parens typeParser
-    <|> singleTypeParser'
+  label
+    "constructorArgParser"
+    ( parens typeParser
+        <|> singleTypeParser'
     )
 
 -- |
@@ -139,9 +144,10 @@ typeParser = do
 -- TypeApp (TConstructor (Id "Maybe")) (TVariable (Id "a"))
 typeStarParser :: Parser Type
 typeStarParser =
-  label "typeStarParser"
-    (   parens typeParser
-    <|> singleTypeParser
+  label
+    "typeStarParser"
+    ( parens typeParser
+        <|> singleTypeParser
     )
 
 -- |
@@ -160,8 +166,8 @@ singleTypeParser = do
 singleTypeParser' :: Parser Type
 singleTypeParser' =
   -- TODO: a good label
-      fmap TVariable (lexeme lowerIdParser)
-  <|> fmap TConstructor (lexeme upperIdParser)
+  fmap TVariable (lexeme lowerIdParser)
+    <|> fmap TConstructor (lexeme upperIdParser)
 
 -- |
 -- >>> parseTest lowerIdParser "a"
@@ -184,11 +190,11 @@ lowerIdParser = do
 
 keywordList :: [Text]
 keywordList =
-  [ "type"
-  , "let"
-  , "in"
-  , "case"
-  , "of"
+  [ "type",
+    "let",
+    "in",
+    "case",
+    "of"
   ]
 
 -- |
@@ -227,8 +233,10 @@ spaces =
     space1 :: Parser ()
     space1 =
       void
-        (takeWhile1P (Just "space character (U+0020")
-        (== ' '))
+        ( takeWhile1P
+            (Just "space character (U+0020")
+            (== ' ')
+        )
 
 symbol :: Text -> Parser ()
 symbol =
@@ -245,20 +253,22 @@ spacesOrNewlines =
     spaceOrNewline1 :: Parser ()
     spaceOrNewline1 =
       void
-        (takeWhile1P
-          (Just "space or newline (U+0020 or U+000A)")
-          (\c -> c == ' ' || c == '\n'))
+        ( takeWhile1P
+            (Just "space or newline (U+0020 or U+000A)")
+            (\c -> c == ' ' || c == '\n')
+        )
 
 parens :: Parser a -> Parser a
 parens =
   between (symbol "(") (symbol ")")
 
 -- | Requires the parser to consume all input (unlike 'Mega.runParser').
-runParser
-  :: forall a. Parser a
-  -> FilePath
-  -> Text
-  -> Either (ParseErrorBundle Text Void) a
+runParser ::
+  forall a.
+  Parser a ->
+  FilePath ->
+  Text ->
+  Either (ParseErrorBundle Text Void) a
 runParser parser path =
   Mega.runParser f path
   where
@@ -270,11 +280,11 @@ runParser parser path =
 
 -- | For doctests.
 -- Requires the parser to consume all input (unlike 'Mega.parseTest').
-parseTest
-  :: (ShowErrorComponent e, Show a, Stream s)
-  => Parsec e s a
-  -> s
-  -> IO ()
+parseTest ::
+  (ShowErrorComponent e, Show a, Stream s) =>
+  Parsec e s a ->
+  s ->
+  IO ()
 parseTest p =
   Mega.parseTest do
     res <- p

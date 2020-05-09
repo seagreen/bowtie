@@ -2,11 +2,10 @@ module Bowtie.Type.Kindcheck where
 
 import Bowtie.Lib.Environment
 import Bowtie.Lib.OrderedMap (OrderedMap)
+import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import Bowtie.Lib.Prelude
 import Bowtie.Lib.TypeScheme
 import Bowtie.Type.AST
-
-import qualified Bowtie.Lib.OrderedMap as OrderedMap
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Set as Set
 
@@ -23,19 +22,16 @@ kindcheck =
       where
         constructorType :: (Id, [Type]) -> (Id, TypeScheme)
         constructorType (conId, args) =
-          let
-            finalType :: Type
-            finalType =
-              foldr f (TConstructor typeId) polyVars
-              where
-                f :: Id -> Type -> Type
-                f id acc =
-                  TypeApp acc (TVariable id)
-
-            typ :: Type
-            typ =
-              foldr TArrow finalType args
-          in
-            ( conId
-            , TypeScheme (Set.fromList polyVars) typ
-            )
+          let finalType :: Type
+              finalType =
+                foldr f (TConstructor typeId) polyVars
+                where
+                  f :: Id -> Type -> Type
+                  f id acc =
+                    TypeApp acc (TVariable id)
+              typ :: Type
+              typ =
+                foldr TArrow finalType args
+           in ( conId,
+                TypeScheme (Set.fromList polyVars) typ
+              )

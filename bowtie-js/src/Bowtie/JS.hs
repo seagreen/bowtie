@@ -1,25 +1,25 @@
 {-# LANGUAGE QuasiQuotes #-}
 
 module Bowtie.JS
-  ( transpile
-  , transpileCore
-  , transpileAndExecute
-  , appendConsoleLog
-  , runTextCommand
-  ) where
+  ( transpile,
+    transpileCore,
+    transpileAndExecute,
+    appendConsoleLog,
+    runTextCommand,
+  )
+where
 
+import qualified Bowtie.Core.Expr as Core
+import qualified Bowtie.Interpret as Interpret
 import Bowtie.JS.Imperativize (makeImp)
 import Bowtie.JS.Serialize (serializeTop)
 import Bowtie.Lib.Environment
 import Bowtie.Lib.Prelude
+import qualified Data.ByteString.Lazy as LBS
 import Data.String.QQ (s)
+import qualified Data.Text as Text
 import Data.Text.Encoding (decodeUtf8)
 import System.Process.Typed
-
-import qualified Bowtie.Core.Expr as Core
-import qualified Bowtie.Interpret as Interpret
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Text as Text
 
 -- | Internal.
 builtinJsSource :: Text
@@ -53,10 +53,8 @@ transpile src = do
 
 transpileCore :: Environment -> Core.Expr -> Text
 transpileCore env expr =
-  let
-    jsAST = makeImp env expr
-  in
-    "'use strict';\n\n" <> builtinJsSource <> "\n" <> serializeTop jsAST
+  let jsAST = makeImp env expr
+   in "'use strict';\n\n" <> builtinJsSource <> "\n" <> serializeTop jsAST
 
 transpileAndExecute :: Text -> IO Text
 transpileAndExecute src = do
@@ -70,20 +68,24 @@ appendConsoleLog js =
 -- * Below should be in a lib somewhere
 
 -- | NOTE: Only used with trused input!
-runTextCommand
-  :: Text -- ^ Command injection vulnerability when passed untrusted input.
-  -> Text -- ^ Command injection vulnerability when passed untrusted input.
-  -> IO Text
+runTextCommand ::
+  -- | Command injection vulnerability when passed untrusted input.
+  Text ->
+  -- | Command injection vulnerability when passed untrusted input.
+  Text ->
+  IO Text
 runTextCommand cmd input = do
   res <- runCommand cmd "" (encodeUtf8 input)
   pure (decodeUtf8 res) -- todo
 
 -- | NOTE: Only used with trused input!
-runCommand
-  :: Text -- ^ Command injection vulnerability when passed untrusted input.
-  -> Text -- ^ Command injection vulnerability when passed untrusted input.
-  -> ByteString
-  -> IO ByteString
+runCommand ::
+  -- | Command injection vulnerability when passed untrusted input.
+  Text ->
+  -- | Command injection vulnerability when passed untrusted input.
+  Text ->
+  ByteString ->
+  IO ByteString
 runCommand cmd arg input = do
   fmap LBS.toStrict (readProcessStdout_ proc2)
   where
@@ -91,7 +93,6 @@ runCommand cmd arg input = do
     proc1 :: ProcessConfig () () ()
     proc1 =
       shell (Text.unpack cmd <> " " <> Text.unpack arg)
-
     -- Command with argument and stdin
     proc2 :: ProcessConfig () () ()
     proc2 =
